@@ -1,0 +1,60 @@
+name: CI
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Ensure chezmoi is installed (Unix)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          if ! command -v chezmoi >/dev/null; then
+            echo "chezmoi not found. Attempting to install"
+            if command -v apt-get >/dev/null; then
+              sudo apt-get update -y
+              sudo apt-get install -y chezmoi || \
+                sh -c "$(curl -fsLS get.chezmoi.io)" -- -b /usr/local/bin
+            elif command -v brew >/dev/null; then
+              brew install chezmoi
+            else
+              sh -c "$(curl -fsLS get.chezmoi.io)" -- -b /usr/local/bin
+            fi
+          fi
+
+      - name: Ensure chezmoi is installed (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          if (-not (Get-Command chezmoi -ErrorAction SilentlyContinue)) {
+            Write-Host 'chezmoi not found. Attempting winget install.'
+            winget install twpayne.chezmoi -e --id twpayne.chezmoi `
+              || throw 'chezmoi is required. Install it manually.'
+          }
+
+      - name: Dry-run apply
+        run: chezmoi apply --dry-run -S .
+
+      - name: Doctor
+        run: chezmoi doctor -S .
+
+  linters:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install tools
+        run: sudo apt-get update -y && sudo apt-get install -y shellcheck stylua
+      - name: Shellcheck
+        run: |
+          find . -name '*.sh' -print | xargs -r shellcheck
+      - name: Stylua
+        run: |
+          find dot_config/nvim -name '*.lua' | xargs -r stylua -c
