@@ -10,25 +10,25 @@ vim.api.nvim_set_hl(0, "Cursor", { fg = "#FF5000", bg = "#000000" })
 
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not vim.loop.fs_stat(lazypath) then
-  vim.fn.system({
-    "git",
-    "clone",
-    "--filter=blob:none",
-    "https://github.com/folke/lazy.nvim.git",
-    "--branch=stable",
-    lazypath,
-  })
+	vim.fn.system({
+		"git",
+		"clone",
+		"--filter=blob:none",
+		"https://github.com/folke/lazy.nvim.git",
+		"--branch=stable",
+		lazypath,
+	})
 end
 vim.opt.rtp:prepend(lazypath)
 
 require("lazy").setup({
-  {
-    "rebelot/kanagawa.nvim",
-    config = function()
-      vim.cmd("colorscheme kanagawa")
-    end,
-  },
-  { "tpope/vim-surround" },
+	{
+		"rebelot/kanagawa.nvim",
+		config = function()
+			vim.cmd("colorscheme kanagawa")
+		end,
+	},
+	{ "tpope/vim-surround" },
 })
 
 -- Map <leader>1..9 to switch tabs
