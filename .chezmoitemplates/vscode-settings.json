@@ -4,6 +4,7 @@
   "editor.cursorSurroundingLinesStyle": "all",
   "editor.cursorBlinking": "solid",
   "editor.cursorSmoothCaretAnimation": "off",
+  "editor.fontSize": 14,
   "editor.lineNumbers": "relative",
   "editor.renderLineHighlight": "none",
   "workbench.colorTheme": "Kanagawa",
