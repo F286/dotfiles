@@ -35,12 +35,8 @@
     "visualBlock": "block"
   },
   "vim.normalModeKeyBindingsNonRecursive": [
-    { "before": ["<leader>", "v"], "after": ["<C-v>"] },
-    {
-      "before": ["<Esc>"],
-      "after": ["<Esc>"],
-      "commands": [":nohl"]
-    },
+    { "before": ["<leader>"], "commands": ["whichkey.show"] },
+    { "before": ["<leader>", "v"], "commands": ["extension.vim_ctrl+v"] },
     { "before": ["<leader>", "1"], "commands": ["workbench.action.openEditorAtIndex1"] },
     { "before": ["<leader>", "2"], "commands": ["workbench.action.openEditorAtIndex2"] },
     { "before": ["<leader>", "3"], "commands": ["workbench.action.openEditorAtIndex3"] },
@@ -49,7 +45,12 @@
     { "before": ["<leader>", "6"], "commands": ["workbench.action.openEditorAtIndex6"] },
     { "before": ["<leader>", "7"], "commands": ["workbench.action.openEditorAtIndex7"] },
     { "before": ["<leader>", "8"], "commands": ["workbench.action.openEditorAtIndex8"] },
-    { "before": ["<leader>", "9"], "commands": ["workbench.action.openEditorAtIndex9"] }
+    { "before": ["<leader>", "9"], "commands": ["workbench.action.openEditorAtIndex9"] },
+    {
+      "before": ["<Esc>"],
+      "after": ["<Esc>"],
+      "commands": [":nohl"]
+    }
   ],
   "vim.insertModeKeyBindings": [
     { "before": ["<Esc>"], "after": ["<Esc>", "<C-g>u"] }
