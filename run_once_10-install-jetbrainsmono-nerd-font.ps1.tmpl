@@ -12,7 +12,8 @@ $ProbeFiles  = @(
 
 function Test-HasJBMonoNF {
   foreach ($f in $ProbeFiles) {
-    if (Test-Path (Join-Path $UserFontDir $f) -or Test-Path (Join-Path $SysFontDir $f)) { return $true }
+    if ((Test-Path -Path (Join-Path $UserFontDir $f)) -or
+        (Test-Path -Path (Join-Path $SysFontDir $f))) { return $true }
   }
   return $false
 }
