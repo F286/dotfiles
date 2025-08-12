@@ -1,20 +1,52 @@
 {{ if eq .chezmoi.os "windows" -}}
-# Install JetBrainsMono Nerd Font on Windows
-$FontDir = "$env:LOCALAPPDATA\Microsoft\Windows\Fonts"
-if (Test-Path "$FontDir\JetBrainsMonoNerdFont-Regular.ttf") {
-    return
+# Install JetBrainsMono Nerd Font on Windows (idempotent, low-fuss)
+
+$ErrorActionPreference = "Stop"
+
+$UserFontDir = Join-Path $env:LOCALAPPDATA "Microsoft\Windows\Fonts"
+$SysFontDir  = Join-Path $env:WINDIR "Fonts"
+$ProbeFiles  = @(
+  "JetBrainsMonoNerdFont-Regular.ttf",
+  "JetBrainsMonoNerdFontMono-Regular.ttf"
+)
+
+function Test-HasJBMonoNF {
+  foreach ($f in $ProbeFiles) {
+    if ((Test-Path -Path (Join-Path $UserFontDir $f)) -or
+        (Test-Path -Path (Join-Path $SysFontDir $f))) { return $true }
+  }
+  return $false
 }
+
+if (Test-HasJBMonoNF) { return }
+
+$installed = $false
+
+# 1) Winget (preferred, well supported)
 if (Get-Command winget -ErrorAction SilentlyContinue) {
-    winget install -e --id NerdFonts.JetBrainsMono --accept-package-agreements --accept-source-agreements
-} elseif (Get-Command choco -ErrorAction SilentlyContinue) {
+  try {
+    winget install -e --id DEVCOM.JetBrainsMonoNerdFont `
+      --accept-package-agreements --accept-source-agreements
+    $installed = Test-HasJBMonoNF
+  } catch { }
+}
+
+# 2) Chocolatey (if present)
+if (-not $installed -and (Get-Command choco -ErrorAction SilentlyContinue)) {
+  try {
     choco install -y nerd-fonts-jetbrainsmono
-} else {
-    $Url = "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/JetBrainsMono.zip"
-    $Zip = Join-Path $env:TEMP "JetBrainsMono.zip"
-    Invoke-WebRequest -Uri $Url -OutFile $Zip
-    New-Item -ItemType Directory -Path $FontDir -Force | Out-Null
-    Expand-Archive -Path $Zip -DestinationPath $FontDir -Force
-    Remove-Item $Zip
+    $installed = Test-HasJBMonoNF
+  } catch { }
+}
+
+# 3) Direct download (always works, per-user install)
+if (-not $installed) {
+  $Url = "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/JetBrainsMono.zip"
+  $Zip = Join-Path $env:TEMP "JetBrainsMono.zip"
+  Invoke-WebRequest -Uri $Url -OutFile $Zip
+  New-Item -ItemType Directory -Path $UserFontDir -Force | Out-Null
+  Expand-Archive -Path $Zip -DestinationPath $UserFontDir -Force
+  Remove-Item $Zip -Force
 }
 {{ end -}}
 
