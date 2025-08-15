@@ -1,5 +1,5 @@
+{{- if eq .chezmoi.os "darwin" -}}
 #!/usr/bin/env bash
-{{- if eq .chezmoi.os "darwin" }}
 set -euo pipefail
 
 # Ensure Homebrew exists (skip if not)
@@ -15,4 +15,4 @@ fi
 
 echo "[hammerspoon] If this is your first run, open Hammerspoon once and grant Accessibility permissions:"
 echo "             System Settings → Privacy & Security → Accessibility → enable Hammerspoon."
-{{- end }}
+{{- end -}}
