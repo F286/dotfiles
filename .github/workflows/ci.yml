@@ -11,7 +11,7 @@ jobs:
         os: [ubuntu-latest, macos-latest, windows-latest]
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Ensure chezmoi is installed (Unix)
         if: runner.os != 'Windows'
@@ -40,8 +40,14 @@ jobs:
               || throw 'chezmoi is required. Install it manually.'
           }
 
-      - name: Dry-run apply
-        run: chezmoi apply --dry-run -S .
+      - name: Dry-run apply (verbose)
+        run: chezmoi apply -n -v -k -S .
+
+      - name: Check VS Code keybindings template (mac only)
+        if: runner.os == 'macOS'
+        run: |
+          # Render the full VS Code keybindings target to ensure templates parse
+          chezmoi execute-template -f dot_config/Code/User/keybindings.json.tmpl >/dev/null
 
       - name: Doctor
         run: chezmoi doctor -S .

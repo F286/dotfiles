@@ -30,7 +30,6 @@
   { "key": "shift+cmd+left",  "command": "cursorWordStartLeftSelect", "when": "editorTextFocus" },
   { "key": "shift+cmd+right", "command": "cursorWordEndRightSelect",  "when": "editorTextFocus" },
 
-  // ----- Open files with Enter in the Explorer -----
   { "key": "enter",      "command": "-renameFile",         "when": "explorerViewletVisible && filesExplorerFocus && !inputFocus" },
   { "key": "enter",      "command": "list.select",         "when": "explorerViewletVisible && filesExplorerFocus && !inputFocus" },
   { "key": "cmd+enter",  "command": "renameFile",          "when": "explorerViewletVisible && filesExplorerFocus && !inputFocus" },
