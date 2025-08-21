@@ -792,20 +792,9 @@
   { "key": "ctrl+2", "command": "workbench.action.focusSecondEditorGroup" },
   { "key": "ctrl+3", "command": "workbench.action.focusThirdEditorGroup" },
   // FZF search tools
-  {
-    "key": "ctrl+alt+f",
-    "command": "workbench.action.terminal.newWithProfile",
-    "args": { "profileName": "Find Files", "location": "editor" }
-  },
-  {
-    "key": "ctrl+alt+shift+f",
-    "command": "workbench.action.terminal.newWithProfile",
-    "args": { "profileName": "Search Grep", "location": "editor" }
-  },
-  {
-    "key": "ctrl+alt+g",
-    "command": "workbench.action.terminal.newWithProfile",
-    "args": { "profileName": "Lazy Git", "location": "editor" }
-  }
+  { "key": "ctrl+alt+f", "command": "workbench.action.tasks.runTask", "args": "FF: Find Files" },
+  { "key": "ctrl+alt+shift+f", "command": "workbench.action.tasks.runTask", "args": "SG: Search Grep" },
+  { "key": "ctrl+alt+g", "command": "workbench.action.tasks.runTask", "args": "LG: LazyGit" },
+  { "key": "ctrl+alt+m", "command": "workbench.action.toggleMaximizedPanel" }
 ]
 

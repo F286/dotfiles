@@ -602,8 +602,8 @@
       ],
       "commands": [
         {
-          "command": "workbench.action.terminal.newWithProfile",
-          "args": { "profileName": "Search Grep", "location": "editor" }
+          "command": "workbench.action.tasks.runTask",
+          "args": "SG: Search Grep"
         }
       ]
     },
@@ -615,8 +615,8 @@
       ],
       "commands": [
         {
-          "command": "workbench.action.terminal.newWithProfile",
-          "args": { "profileName": "Find Files", "location": "editor" }
+          "command": "workbench.action.tasks.runTask",
+          "args": "FF: Find Files"
         }
       ]
     },
@@ -628,8 +628,8 @@
       ],
       "commands": [
         {
-          "command": "workbench.action.terminal.newWithProfile",
-          "args": { "profileName": "Find Files", "location": "editor" }
+          "command": "workbench.action.tasks.runTask",
+          "args": "FF: Find Files"
         }
       ]
     },
@@ -640,8 +640,8 @@
       ],
       "commands": [
         {
-          "command": "workbench.action.terminal.newWithProfile",
-          "args": { "profileName": "Search Grep", "location": "editor" }
+          "command": "workbench.action.tasks.runTask",
+          "args": "SG: Search Grep"
         }
       ]
     },
@@ -1080,8 +1080,8 @@
       ],
       "commands": [
         {
-          "command": "workbench.action.terminal.newWithProfile",
-          "args": { "profileName": "Lazy Git", "location": "editor" }
+          "command": "workbench.action.tasks.runTask",
+          "args": "LG: LazyGit"
         }
       ]
     },
