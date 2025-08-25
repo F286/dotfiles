@@ -1,89 +1,25 @@
 #!/usr/bin/env bash
+# List files (safe-by-default): no hidden, respect .gitignore
+# Usage: ff [path] [-H|--hidden] [-I|--ignored]
 set -euo pipefail
 
-QUERY="${*:-}"
+hidden=
+ignored=
+path="."
 
-# 0) Jump to repo root (like LazyVim/Telescope rooter)
-if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
-  cd "$(git rev-parse --show-toplevel)"
-fi
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    -H|--hidden)  hidden="--hidden" ;;
+    -I|--ignored) ignored="--no-ignore --no-ignore-vcs" ;;
+    *)            path="$1" ;;
+  esac
+  shift
+done
 
-# 1) Source list (NUL-separated for safety)
-if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
-  EMIT=(git -c core.quotepath=false ls-files -co --exclude-standard -z)
-elif command -v fd >/dev/null 2>&1; then
-  EMIT=(fd -0 --type f --hidden --follow --exclude .git)
-elif command -v rg >/dev/null 2>&1; then
-  EMIT=(rg -0 --files --hidden -g '!.git')
+if command -v fd >/dev/null 2>&1; then
+  # fd defaults: no hidden, respect .gitignore
+  exec fd . "$path" --type f --color never --strip-cwd-prefix ${hidden:+$hidden} ${ignored:+$ignored}
 else
-  EMIT=(find . -type f -print0)
+  # rg --files defaults: no hidden, respect .gitignore
+  exec rg --files "$path" --color never ${hidden:+$hidden} ${ignored:+$ignored}
 fi
-
-# 2) Minimal icon mapper (Nerd Font). Keep Bash 3.2-friendly (no associative arrays).
-icon_for() {
-  local base="${1##*/}"
-  local ext="${base##*.}"
-  case "$base" in
-    .gitignore|.gitattributes|.gitmodules) printf ""; return;;
-  esac
-  case "$ext" in
-    js)   printf "";;   jsx)  printf "";;
-    ts)   printf "";;   tsx)  printf "";;
-    json) printf "";;   html|htm) printf "";;
-    css|scss|sass|less) printf "";;
-    md|markdown) printf "";;
-    go)   printf "";;   rs)   printf "";;
-    py)   printf "";;   rb)   printf "";;
-    php)  printf "";;   java) printf "";;
-    kt)   printf "";;   c|h|hpp|hh|hxx|cpp|cc|cxx) printf "";;
-    m|mm) printf "";;   sh|bash|zsh) printf "";;
-    yaml|yml|toml|ini|conf) printf "";;
-    png|jpg|jpeg|gif|webp|svg|ico) printf "";;
-    pdf)  printf "";;   log|txt) printf "";;
-    *)    printf "";;
-  esac
-}
-
-# 3) Build decorated NUL-stream: "<icon>\t<basename>\t<path>\0"
-decorate() {
-  local file base icon
-  while IFS= read -r -d '' file; do
-    case "$file" in ./*) file="${file#./}";; esac
-    base="${file##*/}"
-    icon="$(icon_for "$file")"
-    printf '%s\t%s\t%s\0' "$icon" "$base" "$file"
-  done
-}
-
-# 4) Run fzf with optional path-search toggle (Alt-s)
-nth="2"
-prompt='Files   '
-while true; do
-  out=$("${EMIT[@]}" \
-    | decorate \
-    | FZF_DEFAULT_OPTS="${FZF_DEFAULT_OPTS-}" \
-      fzf --read0 --ansi \
-          --prompt="$prompt" \
-          --delimiter='\t' \
-          --with-nth=1,2 \
-          --nth="$nth" \
-          --tiebreak=begin,index \
-          --preview 'bat --style=full --color=always --paging=never -- {3} 2>/dev/null || head -n 300 -- {3}' \
-          --preview-window=right,60%,border,wrap \
-          --bind 'alt-p:toggle-preview,enter:execute-silent(code -r -- {+3})+abort' \
-          --expect=alt-s \
-          --print-query \
-          --multi \
-          --query "$QUERY")
-  key=$(printf '%s\n' "$out" | head -n1)
-  QUERY=$(printf '%s\n' "$out" | sed -n '2p')
-  [ "$key" != 'alt-s' ] && break
-  if [ "$nth" = '2' ]; then
-    nth='2,3'
-    prompt='Path   '
-  else
-    nth='2'
-    prompt='Files   '
-  fi
-done || true
-
