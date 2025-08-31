@@ -324,19 +324,6 @@
       ]
     }
   },
-  // Global fuzzy find within files (uses rip grep)
-  {
-    "key": "shift+cmd+f",
-    "command": "runCommands",
-    "args": {
-      "commands": [
-        // Automatically search for the word under the cursor
-        "editor.action.addSelectionToNextFindMatch",
-        "find-it-faster.findWithinFiles",
-        "extension.vim_escape"
-      ]
-    }
-  },
   {
     "key": "cmd+t",
     "command": "workbench.action.closePanel",
@@ -427,13 +414,6 @@
     }
   },
   // File explorer & Git
-  // Copilot Chat
-  {
-    // Focus back to the editor
-    "key": "escape",
-    "command": "workbench.action.focusActiveEditorGroup",
-    "when": "view.workbench.panel.chat.view.copilot.visible && !editorFocus && !lazygitFocus"
-  },
   // Explorer
   {
     "key": "o",
@@ -737,13 +717,7 @@
     ] }
   },
 
-  // Right (Secondary) Side Bar — single ⌘ stroke
-  { "key": "cmd+;", "command": "workbench.action.focusAuxiliaryBar",   "when": "!auxiliaryBarFocus" },
-  { "key": "cmd+;", "command": "workbench.action.toggleAuxiliaryBar",  "when": "auxiliaryBarFocus" },
-
-  // Esc always drops you back to the editor from bars/panel (but not LazyGit)
-  { "key": "escape", "command": "workbench.action.focusActiveEditorGroup",
-    "when": "(sideBarFocus || panelFocus || auxiliaryBarFocus) && !lazygitFocus" },
+  // Right (Secondary) Side Bar — single ⌘ stroke (handled in unified block below)
 
   // === ABSOLUTE one-keystroke toggles with focus (Cmd AND Ctrl) ==============
   
@@ -773,14 +747,14 @@
   { "key": "ctrl+shift+b", "command": "workbench.action.closeSidebar" },
   { "key": "ctrl+shift+;", "command": "workbench.action.closeAuxiliaryBar" },
 
-  // Right (Secondary) Side Bar — single-stroke toggle (Cmd AND Ctrl)
-  { "key": "cmd+;",  "command": "workbench.action.focusAuxiliaryBar",  "when": "!auxiliaryBarFocus" },
-  { "key": "cmd+;",  "command": "workbench.action.focusActiveEditorGroup", "when": "auxiliaryBarFocus" },
-  { "key": "ctrl+;", "command": "workbench.action.focusAuxiliaryBar",  "when": "!auxiliaryBarFocus" },
-  { "key": "ctrl+;", "command": "workbench.action.focusActiveEditorGroup", "when": "auxiliaryBarFocus" },
+  // Unified right side: Auxiliary Bar (Cmd and Ctrl)
+  { "key": "cmd+;",  "command": "workbench.action.focusAuxiliaryBar",       "when": "!auxiliaryBarFocus" },
+  { "key": "cmd+;",  "command": "workbench.action.focusActiveEditorGroup", "when": "!editorFocus && !sideBarFocus" },
+  { "key": "ctrl+;", "command": "workbench.action.focusAuxiliaryBar",       "when": "!auxiliaryBarFocus" },
+  { "key": "ctrl+;", "command": "workbench.action.focusActiveEditorGroup", "when": "!editorFocus && !sideBarFocus" },
 
   // Esc always drops you back to the editor from bars/panel (but not LazyGit)
-  { "key": "escape", "command": "workbench.action.focusActiveEditorGroup", "when": "(sideBarFocus || panelFocus || auxiliaryBarFocus) && !lazygitFocus" },
+  { "key": "escape", "command": "workbench.action.focusActiveEditorGroup", "when": "!editorFocus" },
 
   // === Splits (one modifier only) ============================================
   { "key": "cmd+\\",  "command": "workbench.action.splitEditor" },
