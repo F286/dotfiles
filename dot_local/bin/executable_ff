@@ -56,6 +56,8 @@ build_emit() {
 }
 
 # 2) Minimal icon mapper (Nerd Font). Keep Bash 3.2-friendly (no associative arrays).
+#    Color icons to mimic LazyVim/TokyoNight (blue-ish).
+ICON_COLOR_FG="38;2;122;162;247" # #7aa2f7
 icon_for() {
   local base="${1##*/}"
   local ext="${base##*.}"
@@ -87,7 +89,8 @@ decorate() {
     case "$file" in ./*) file="${file#./}";; esac
     base="${file##*/}"
     icon="$(icon_for "$file")"
-    printf '%s\t%s\t%s\0' "$icon" "$base" "$file"
+    # colorize icon foreground
+    printf '\033[%sm%s\033[39m\t%s\t%s\0' "$ICON_COLOR_FG" "$icon" "$base" "$file"
   done
 }
 
@@ -99,14 +102,14 @@ MANUAL_PATH=0
 
 # 4) Run fzf with toggles for path search, hidden, ignore
 nth="2"
-prompt='Files   '
+prompt='Files   '
 while true; do
   # Auto path-mode if user hasn't manually toggled and query contains '/'
   if [ "$MANUAL_PATH" -eq 0 ]; then
     if printf '%s' "$QUERY" | grep -q '/'; then
-      nth='2,3'; prompt='Path   '
+      nth='2,3'; prompt='Path   '
     else
-      nth='2'; prompt='Files   '
+      nth='2'; prompt='Files   '
     fi
   fi
   # rebuild emitter and header each pass
@@ -118,17 +121,20 @@ while true; do
           --height=100% \
           --margin=1,2 \
           --border --layout=reverse \
-          --color='border:#3b4261' \
-          --color='spinner:#bb9af7,header:#565f89,pointer:#ff9e64,marker:#9ece6a' \
+          --info=inline \
+          --color='fg:#c0caf5,bg:#1e2030,fg+:#c0caf5,bg+:#2f334d,hl:#ff9e64,hl+:#ff9e64' \
+          --color='border:#3b4261,gutter:#1e2030' \
+          --color='spinner:#bb9af7,header:#565f89,pointer:#ff9e64,marker:#9ece6a,prompt:#7aa2f7,query:#c0caf5,info:#565f89' \
           --prompt="$prompt" \
           --header='' \
           --delimiter='\t' \
           --with-nth=1,2 \
           --nth="$nth" \
           --tiebreak=begin,index \
-          --preview 'bat --style=full --color=always --paging=never -- {3} 2>/dev/null || head -n 300 -- {3}' \
+          --preview 'bat --style=numbers --color=always --paging=never -- {3} 2>/dev/null || head -n 300 -- {3}' \
           --preview-window=right,60%,border,wrap \
-          --bind 'alt-p:toggle-preview,enter:execute-silent(code -r -- {+3})+abort,ctrl-q:execute-silent(code -r -- {+3})+abort' \
+          --preview-label=' Preview ' \
+          --bind 'alt-p:toggle-preview,ctrl-d:preview-half-page-down,ctrl-u:preview-half-page-up,enter:execute-silent(code -r -- {+3})+abort,ctrl-q:execute-silent(code -r -- {+3})+abort' \
           --expect=alt-s,alt-.,alt-i \
           --print-query \
           --history="$HIST_FILE" \
