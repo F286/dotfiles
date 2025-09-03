@@ -22,6 +22,14 @@ source "$ZSH/oh-my-zsh.sh"
 
 export PATH="$HOME/.local/bin:$PATH:/Users/freedebreuil/tools/depot_tools"
 
+# Compile .zshrc for faster startup (uses compiled file if present)
+if command -v zsh >/dev/null 2>&1 && whence -w zcompile >/dev/null 2>&1; then
+  _zrc="$HOME/.zshrc"; _zwc="${_zrc}.zwc"
+  if [[ ! -s "$_zwc" || "$_zrc" -nt "$_zwc" ]]; then
+    zcompile -R -- "$_zwc" "$_zrc" 2>/dev/null || true
+  fi
+fi
+
 # shellcheck source=/Users/freedebreuil/.config/shell/00-editor.sh
 # shellcheck disable=SC1091
 [ -f "/Users/freedebreuil/.config/shell/00-editor.sh" ] && . "/Users/freedebreuil/.config/shell/00-editor.sh"

@@ -156,7 +156,7 @@ while true; do
     --info=inline # shows 1/65 on the right
     --delimiter=':'
     --preview="${PREVIEW_CMD}"
-    --preview-window='right,60%,border,wrap'
+    --preview-window='right,60%,border,wrap,hidden'
     --preview-label=' Preview '
     --bind 'alt-p:toggle-preview'
     --bind 'ctrl-d:preview-half-page-down,ctrl-u:preview-half-page-up'
