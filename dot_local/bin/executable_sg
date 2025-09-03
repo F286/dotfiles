@@ -78,35 +78,46 @@ PREVIEW_CMD='
   S=$((L>15 ? L-15 : 1))
   E=$((L+40))
 
+  # Relative line number within the preview block
+  R=$((L-S+1))
+
   _want_q_hl='"${HIGHLIGHT_QUERY}"'
 
   if command -v bat >/dev/null 2>&1; then
     if [ -n {q} ] && [ "$_want_q_hl" = "1" ]; then
-      bat --paging=never --style=numbers --color=always \
-          --highlight-line "$L" --line-range ${S}:${E} -- {1} \
-        | rg --passthru --color=always -e {q} || true
+      bat --paging=never --style=plain --color=always \
+          --line-range ${S}:${E} -- {1} \
+        | { rg --passthru --color=always -e {q} || true; } \
+        | nl -ba -w1 -s"  " \
+        | awk -v rel="$R" '"'"'NR==rel{ bg="\033[48;2;47;51;77m"; off="\033[49m"; if (match($0, /^[[:space:]]*[0-9]+  /)) { p=substr($0,1,RLENGTH); c=substr($0,RLENGTH+1); } else { p=""; c=$0; } c=bg c; gsub(/\033\[0m/, "\033[0m" bg, c); gsub(/\033\[49m/, bg, c); printf "%s%s%s\n", p, c, off; next }1'"'"'
     else
-      bat --paging=never --style=numbers --color=always \
-          --highlight-line "$L" --line-range ${S}:${E} -- {1}
+      bat --paging=never --style=plain --color=always \
+          --line-range ${S}:${E} -- {1} \
+        | nl -ba -w1 -s"  " \
+        | awk -v rel="$R" '"'"'NR==rel{ bg="\033[48;2;47;51;77m"; off="\033[49m"; if (match($0, /^[[:space:]]*[0-9]+  /)) { p=substr($0,1,RLENGTH); c=substr($0,RLENGTH+1); } else { p=""; c=$0; } c=bg c; gsub(/\033\[0m/, "\033[0m" bg, c); gsub(/\033\[49m/, bg, c); printf "%s%s%s\n", p, c, off; next }1'"'"'
     fi
   elif command -v batcat >/dev/null 2>&1; then
     if [ -n {q} ] && [ "$_want_q_hl" = "1" ]; then
-      batcat --paging=never --style=numbers --color=always \
-             --highlight-line "$L" --line-range ${S}:${E} -- {1} \
-        | rg --passthru --color=always -e {q} || true
+      batcat --paging=never --style=plain --color=always \
+             --line-range ${S}:${E} -- {1} \
+        | { rg --passthru --color=always -e {q} || true; } \
+        | nl -ba -w1 -s"  " \
+        | awk -v rel="$R" '"'"'NR==rel{ bg="\033[48;2;47;51;77m"; off="\033[49m"; if (match($0, /^[[:space:]]*[0-9]+  /)) { p=substr($0,1,RLENGTH); c=substr($0,RLENGTH+1); } else { p=""; c=$0; } c=bg c; gsub(/\033\[0m/, "\033[0m" bg, c); gsub(/\033\[49m/, bg, c); printf "%s%s%s\n", p, c, off; next }1'"'"'
     else
-      batcat --paging=never --style=numbers --color=always \
-             --highlight-line "$L" --line-range ${S}:${E} -- {1}
+      batcat --paging=never --style=plain --color=always \
+             --line-range ${S}:${E} -- {1} \
+        | nl -ba -w1 -s"  " \
+        | awk -v rel="$R" '"'"'NR==rel{ bg="\033[48;2;47;51;77m"; off="\033[49m"; if (match($0, /^[[:space:]]*[0-9]+  /)) { p=substr($0,1,RLENGTH); c=substr($0,RLENGTH+1); } else { p=""; c=$0; } c=bg c; gsub(/\033\[0m/, "\033[0m" bg, c); gsub(/\033\[49m/, bg, c); printf "%s%s%s\n", p, c, off; next }1'"'"'
     fi
   else
     # Portable fallback: use input redirection instead of "sed --"
     if [ -n {q} ] && [ "$_want_q_hl" = "1" ]; then
       sed -n "${S},${E}p" < {1} | nl -ba -w1 -s"  " \
-        | awk -v l="$L" '"'"'{ if (NR==l) printf "\033[7m%s\033[0m\n", $0; else print }'"'"' \
-        | rg --passthru --color=always -e {q} || true
+        | { rg --passthru --color=always -e {q} || true; } \
+        | awk -v rel="$R" '"'"'NR==rel{ bg="\033[48;2;47;51;77m"; off="\033[49m"; if (match($0, /^[[:space:]]*[0-9]+  /)) { p=substr($0,1,RLENGTH); c=substr($0,RLENGTH+1); } else { p=""; c=$0; } c=bg c; gsub(/\033\[0m/, "\033[0m" bg, c); gsub(/\033\[49m/, bg, c); printf "%s%s%s\n", p, c, off; next }1'"'"'
     else
       sed -n "${S},${E}p" < {1} | nl -ba -w1 -s"  " \
-        | awk -v l="$L" '"'"'{ if (NR==l) printf "\033[7m%s\033[0m\n", $0; else print }'"'"'
+        | awk -v rel="$R" '"'"'NR==rel{ bg="\033[48;2;47;51;77m"; off="\033[49m"; if (match($0, /^[[:space:]]*[0-9]+  /)) { p=substr($0,1,RLENGTH); c=substr($0,RLENGTH+1); } else { p=""; c=$0; } c=bg c; gsub(/\033\[0m/, "\033[0m" bg, c); gsub(/\033\[49m/, bg, c); printf "%s%s%s\n", p, c, off; next }1'"'"'
     fi
   fi
 '
@@ -151,6 +162,8 @@ while true; do
     # IMPORTANT: leave placeholders unquoted here as well
     --bind 'enter:execute-silent(code -r --goto {1}:{2}:{3})+abort'
     --bind 'ctrl-q:execute-silent(code -r --goto {+1}:{+2}:{+3})+abort'
+    # TokyoNight Moon left list + selection (match LazyVim look)
+    --color='fg:#c0caf5,bg:#1e2030,fg+:#c0caf5,bg+:#2f334d,hl:#ff9e64,hl+:#ff9e64'
     --color='border:#3b4261'
     --color='spinner:#bb9af7,header:#565f89,pointer:#ff9e64,marker:#9ece6a'
     --border-label "Grep - $(basename "$ROOT")"
