@@ -134,7 +134,7 @@ while true; do
   # shellcheck disable=SC2034
   RELOAD_CMD='
     if [ -n {q} ]; then
-      '"${RG[*]}"' -- {q}
+      '"${RG[*]}"' -- {q} || printf "::: \033[2mNo matches\033[0m\n"
     else
       printf ""
     fi
@@ -147,25 +147,28 @@ while true; do
     --phony # do not filter locally, we reload from rg
     --bind "start:reload:${RELOAD_CMD}"
     --bind "change:reload:${RELOAD_CMD}"
-    --prompt='> '
+    # LazyVim/TokyoNight-like prompt icon (requires Nerd Font; falls back harmlessly)
+    --prompt='   '
     --height=100%
     --margin=1,2           # float-like feel
-    --header=''            # no text at top
+    --header=''            # keep clean like LazyVim floating picker
     --border --layout=reverse
     --info=inline # shows 1/65 on the right
     --delimiter=':'
     --preview="${PREVIEW_CMD}"
     --preview-window='right,60%,border,wrap'
+    --preview-label=' Preview '
     --bind 'alt-p:toggle-preview'
     --bind 'ctrl-d:preview-half-page-down,ctrl-u:preview-half-page-up'
     --bind 'alt-a:toggle-all'
     # IMPORTANT: leave placeholders unquoted here as well
-    --bind 'enter:execute-silent(code -r --goto {1}:{2}:{3})+abort'
-    --bind 'ctrl-q:execute-silent(code -r --goto {+1}:{+2}:{+3})+abort'
-    # TokyoNight Moon left list + selection (match LazyVim look)
+    --bind 'enter:execute-silent([ -n {1} ] && [ -n {2} ] && [ -n {3} ] && code -r --goto {1}:{2}:{3})+abort'
+    --bind 'ctrl-q:execute-silent([ -n {+1} ] && code -r --goto {+1}:{+2}:{+3})+abort'
+    # TokyoNight Moon palette (close to LazyVim)
     --color='fg:#c0caf5,bg:#1e2030,fg+:#c0caf5,bg+:#2f334d,hl:#ff9e64,hl+:#ff9e64'
-    --color='border:#3b4261'
+    --color='border:#3b4261,gutter:#1e2030'
     --color='spinner:#bb9af7,header:#565f89,pointer:#ff9e64,marker:#9ece6a'
+    --color='prompt:#7aa2f7,query:#c0caf5,info:#565f89'
     --border-label "Grep - $(basename "$ROOT")"
     --history="$HIST_FILE"
     --print-query
