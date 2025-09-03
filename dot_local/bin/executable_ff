@@ -7,6 +7,30 @@ QUERY="${*:-}"
 SHOW_HIDDEN=0       # Alt-. toggles
 NO_IGNORE=0         # Alt-i toggles (respect .gitignore by default)
 
+# Open files in an existing VS Code window when possible
+_ff_open() {
+  if command -v code >/dev/null 2>&1; then
+    # Prefer explicit long flag for clarity
+    code --reuse-window -- "$@"
+    return
+  fi
+  # Common alternates
+  for c in code-insiders codium cursor; do
+    if command -v "$c" >/dev/null 2>&1; then
+      "$c" --reuse-window -- "$@"
+      return
+    fi
+  done
+  # macOS fallback
+  if [ "$(uname -s)" = "Darwin" ]; then
+    # Try opening via the app with reuse flag
+    open -g -a "Visual Studio Code" --args -r -- "$@" 2>/dev/null || true
+    return
+  fi
+  # Generic fallback
+  xdg-open "$@" >/dev/null 2>&1 || true
+}
+
 # 0) Jump to repo root (like LazyVim/Telescope rooter)
 if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
   cd "$(git rev-parse --show-toplevel)"
@@ -37,6 +61,14 @@ fi
 
 # 1) Build source list (NUL-separated for safety) based on toggles
 build_emit() {
+  # Fast-path for huge git repos (e.g. Chromium): use index instead of walking FS
+  if git rev-parse --is-inside-work-tree >/dev/null 2>&1 \
+     && [ "$SHOW_HIDDEN" -eq 0 ] && [ "$NO_IGNORE" -eq 0 ]; then
+    # Tracked files only (fast, avoids walking untracked tree), NUL-separated
+    printf '%s\n' git -c core.quotepath=false ls-files -z
+    return
+  fi
+
   if command -v fd >/dev/null 2>&1; then
     local args=(fd -0 --type f --follow --exclude .git)
     [ "$SHOW_HIDDEN" -eq 1 ] && args+=(--hidden)
@@ -55,44 +87,8 @@ build_emit() {
   fi
 }
 
-# 2) Minimal icon mapper (Nerd Font). Keep Bash 3.2-friendly (no associative arrays).
-#    Color icons to mimic LazyVim/TokyoNight (blue-ish).
-ICON_COLOR_FG="38;2;122;162;247" # #7aa2f7
-icon_for() {
-  local base="${1##*/}"
-  local ext="${base##*.}"
-  case "$base" in
-    .gitignore|.gitattributes|.gitmodules) printf ""; return;;
-  esac
-  case "$ext" in
-    js)   printf "";;   jsx)  printf "";;
-    ts)   printf "";;   tsx)  printf "";;
-    json) printf "";;   html|htm) printf "";;
-    css|scss|sass|less) printf "";;
-    md|markdown) printf "";;
-    go)   printf "";;   rs)   printf "";;
-    py)   printf "";;   rb)   printf "";;
-    php)  printf "";;   java) printf "";;
-    kt)   printf "";;   c|h|hpp|hh|hxx|cpp|cc|cxx) printf "";;
-    m|mm) printf "";;   sh|bash|zsh) printf "";;
-    yaml|yml|toml|ini|conf) printf "";;
-    png|jpg|jpeg|gif|webp|svg|ico) printf "";;
-    pdf)  printf "";;   log|txt) printf "";;
-    *)    printf "";;
-  esac
-}
-
-# 3) Build decorated NUL-stream: "<icon>\t<basename>\t<path>\0"
-decorate() {
-  local file base icon
-  while IFS= read -r -d '' file; do
-    case "$file" in ./*) file="${file#./}";; esac
-    base="${file##*/}"
-    icon="$(icon_for "$file")"
-    # colorize icon foreground
-    printf '\033[%sm%s\033[39m\t%s\t%s\0' "$ICON_COLOR_FG" "$icon" "$base" "$file"
-  done
-}
+# 2) Stream paths only (no icons) for speed on huge repos.
+#    We rely on fzf's delimiter to search by basename when desired.
 
 ROOT_LABEL="$(basename "$PWD")"
 HIST_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/fzf-history"
@@ -100,22 +96,22 @@ mkdir -p "$HIST_DIR"
 HIST_FILE="$HIST_DIR/ff"
 MANUAL_PATH=0
 
-# 4) Run fzf with toggles for path search, hidden, ignore
-nth="2"
+# 3) Run fzf with toggles for path search, hidden, ignore
+# Default: search by basename only (fast)
+nth='-1'   # fzf field selector: last path token (basename)
 prompt='Files   '
 while true; do
   # Auto path-mode if user hasn't manually toggled and query contains '/'
   if [ "$MANUAL_PATH" -eq 0 ]; then
     if printf '%s' "$QUERY" | grep -q '/'; then
-      nth='2,3'; prompt='Path   '
+      nth='1..-1'; prompt='Path   '
     else
-      nth='2'; prompt='Files   '
+      nth='-1'; prompt='Files   '
     fi
   fi
   # rebuild emitter and header each pass
   IFS=$'\n' read -r -d '' -a EMIT < <(build_emit && printf '\0') || true
   out=$("${EMIT[@]}" \
-    | decorate \
     | FZF_DEFAULT_OPTS="${FZF_DEFAULT_OPTS-}" \
       fzf --read0 --ansi \
           --height=100% \
@@ -127,14 +123,13 @@ while true; do
           --color='spinner:#bb9af7,header:#565f89,pointer:#ff9e64,marker:#9ece6a,prompt:#7aa2f7,query:#c0caf5,info:#565f89' \
           --prompt="$prompt" \
           --header='' \
-          --delimiter='\t' \
-          --with-nth=1,2 \
+          --delimiter='/' \
           --nth="$nth" \
           --tiebreak=begin,index \
-          --preview 'bat --style=numbers --color=always --paging=never -- {3} 2>/dev/null || head -n 300 -- {3}' \
-          --preview-window=right,60%,border,wrap \
+          --preview 'bat --style=numbers --color=always --paging=never --line-range :300 -- {1} 2>/dev/null || head -n 300 -- {1}' \
+          --preview-window=right,60%,border,wrap,hidden \
           --preview-label=' Preview ' \
-          --bind 'alt-p:toggle-preview,ctrl-d:preview-half-page-down,ctrl-u:preview-half-page-up,enter:execute-silent(code -r -- {+3})+abort,ctrl-q:execute-silent(code -r -- {+3})+abort' \
+          --bind 'alt-p:toggle-preview,ctrl-d:preview-half-page-down,ctrl-u:preview-half-page-up,enter:execute-silent(_ff_open {+1})+abort,ctrl-q:execute-silent(_ff_open {+1})+abort' \
           --expect=alt-s,alt-.,alt-i \
           --print-query \
           --history="$HIST_FILE" \
@@ -146,10 +141,10 @@ while true; do
   QUERY=$(printf '%s\n' "$out" | sed -n '2p')
   case "$key" in
     alt-s)
-      if [ "$nth" = '2' ]; then
-        nth='2,3'; prompt='Path   '
+      if [ "$nth" = '-1' ]; then
+        nth='1..-1'; prompt='Path   '
       else
-        nth='2'; prompt='Files   '
+        nth='-1'; prompt='Files   '
       fi
       MANUAL_PATH=1
       ;;

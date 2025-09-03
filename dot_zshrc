@@ -1,7 +1,23 @@
 # shellcheck shell=bash
+
+# Fast-exit for non-interactive shells
+[[ $- != *i* ]] && return
+
+# oh-my-zsh base
 export ZSH="$HOME/.oh-my-zsh"
 ZSH_THEME="robbyrussell"
 plugins=(git)
+
+# Startup speed: cache completions and disable compfix/update checks
+export DISABLE_AUTO_UPDATE=true
+export ZSH_DISABLE_COMPFIX=true
+export ZSH_CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/oh-my-zsh"
+export ZSH_COMPDUMP="$ZSH_CACHE_DIR/.zcompdump-$HOST-$ZSH_VERSION"
+mkdir -p "$ZSH_CACHE_DIR"
+autoload -Uz compinit && compinit -C -d "$ZSH_COMPDUMP"
+zstyle ':completion:*' use-cache on
+zstyle ':completion:*' cache-path "$ZSH_CACHE_DIR"
+
 source "$ZSH/oh-my-zsh.sh"
 
 export PATH="$HOME/.local/bin:$PATH:/Users/freedebreuil/tools/depot_tools"
