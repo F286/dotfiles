@@ -14,4 +14,4 @@ export PATH="$HOME/.local/bin:$PATH:/Users/freedebreuil/tools/depot_tools"
 [ -f "$HOME/.config/fzf/tokyonight.zsh" ] && source "$HOME/.config/fzf/tokyonight.zsh"
 
 # Tokyo Night Moon colors for FindItFaster
-export BAT_THEME="tokyonight_moon"
+export BAT_THEME="tokyonight_night"

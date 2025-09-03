@@ -1,5 +1,5 @@
 # TokyoNight-ish fzf with LazyVim/Telescope-like dropdown UX
-export BAT_THEME="tokyonight_night"
+export BAT_THEME="tokyonight_moon"
 export FZF_DEFAULT_OPTS="$FZF_DEFAULT_OPTS
   --layout=reverse
   --height=60%
