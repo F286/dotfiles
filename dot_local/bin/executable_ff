@@ -118,8 +118,8 @@ while true; do
           --height=100% \
           --margin=1,2 \
           --border --layout=reverse \
-          --color='border:#5e81ac' \
-          --color='spinner:#88c0d0,header:#88c0d0,pointer:#88c0d0,marker:#a3be8c' \
+          --color='border:#3b4261' \
+          --color='spinner:#bb9af7,header:#565f89,pointer:#ff9e64,marker:#9ece6a' \
           --prompt="$prompt" \
           --header='' \
           --delimiter='\t' \

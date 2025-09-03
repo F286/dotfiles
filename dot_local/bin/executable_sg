@@ -151,8 +151,8 @@ while true; do
     # IMPORTANT: leave placeholders unquoted here as well
     --bind 'enter:execute-silent(code -r --goto {1}:{2}:{3})+abort'
     --bind 'ctrl-q:execute-silent(code -r --goto {+1}:{+2}:{+3})+abort'
-    --color='border:#5e81ac'
-    --color='spinner:#88c0d0,header:#88c0d0,pointer:#88c0d0,marker:#a3be8c'
+    --color='border:#3b4261'
+    --color='spinner:#bb9af7,header:#565f89,pointer:#ff9e64,marker:#9ece6a'
     --border-label "Grep - $(basename "$ROOT")"
     --history="$HIST_FILE"
     --print-query
