@@ -11,9 +11,12 @@ QUERY="${*:-}"
 # Toggle states (Alt-keys modify these)
 FIXED=0        # Alt-r: regex(0) <-> fixed strings(1)
 WORD=0         # Alt-w: word boundary match
-SHOW_HIDDEN=1  # Alt-.: include hidden files
+SHOW_HIDDEN=0  # Alt-.: include hidden files
 NO_IGNORE=0    # Alt-i: include ignored files (no-ignore)
 CASE_MODE=smart  # Alt-c: cycle smart -> sensitive -> ignore
+
+# Match original behavior: search once query is non-empty
+MIN_CHARS=1
 
 # Hard requirements
 for cmd in rg fzf; do
@@ -133,7 +136,8 @@ while true; do
   # IMPORTANT: leave {q} unquoted; fzf provides safe quoting.
   # shellcheck disable=SC2034
   RELOAD_CMD='
-    if [ -n {q} ]; then
+    QLEN=$(printf %s {q} | wc -c | tr -d "\n ")
+    if [ "${QLEN:-0}" -ge '"$MIN_CHARS"' ]; then
       '"${RG[*]}"' -- {q} || printf "::: \033[2mNo matches\033[0m\n"
     else
       printf ""
@@ -156,7 +160,7 @@ while true; do
     --info=inline # shows 1/65 on the right
     --delimiter=':'
     --preview="${PREVIEW_CMD}"
-    --preview-window='right,60%,border,wrap,hidden'
+    --preview-window='right,60%,border,wrap'
     --preview-label=' Preview '
     --bind 'alt-p:toggle-preview'
     --bind 'ctrl-d:preview-half-page-down,ctrl-u:preview-half-page-up'
