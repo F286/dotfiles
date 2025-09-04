@@ -25,9 +25,11 @@ if [[ -z "${q}" ]]; then
 fi
 
 # Detect regex metacharacters; if none, prefer fixed-strings for speed.
-if [[ ! ${q} =~ [\[\]\(\)\|\?\*\+\{\}\.\^\$] ]]; then
+# Treat '.' as literal (common in filenames like foo.cc), so do NOT
+# consider it a metacharacter for this fast-path detection.
+# Include '\\' to catch explicit regex escapes.
+if [[ ! ${q} =~ [\[\]\(\)\|\?\*\+\{\}\^\$\\] ]]; then
   exec rg -F "${args[@]}" -- "$q"
 else
   exec rg "${args[@]}" -- "$q"
 fi
-

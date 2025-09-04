@@ -9,7 +9,7 @@ HIGHLIGHT_QUERY="${HIGHLIGHT_QUERY:-1}"
 QUERY="${*:-}"
 
 # Toggle states (Alt-keys modify these)
-FIXED=0        # Alt-r: regex(0) <-> fixed strings(1)
+FIXED=1        # Alt-r: fixed(1) <-> regex(0)
 WORD=0         # Alt-w: word boundary match
 SHOW_HIDDEN=0  # Alt-.: include hidden files
 NO_IGNORE=0    # Alt-i: include ignored files (no-ignore)
@@ -53,14 +53,18 @@ cd "$ROOT"
 # Build the ripgrep command from current toggles
 build_rg() {
   # Keep output style the same but reduce work on huge lines
-  RG=(sg_search --line-number --column --no-heading --follow \
+  RG=(rg --line-number --column --no-heading --follow \
         --no-messages --max-columns=300 --max-columns-preview \
         --color=always)
-  # hidden + ignore toggles
-  [ "$SHOW_HIDDEN" -eq 1 ] && RG+=(--hidden)
+  # hidden + ignore toggles (override user config if needed)
+  if [ "$SHOW_HIDDEN" -eq 1 ]; then
+    RG+=(--hidden)
+  else
+    RG+=(--no-hidden)
+  fi
   RG+=(--glob '!.git')
   [ "$NO_IGNORE" -eq 1 ] && RG+=(-uu)
-  # regex vs fixed
+  # regex vs fixed (default: fixed strings)
   [ "$FIXED" -eq 1 ] && RG+=(-F)
   # word match
   [ "$WORD" -eq 1 ] && RG+=(-w)
