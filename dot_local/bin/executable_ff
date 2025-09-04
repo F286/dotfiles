@@ -129,7 +129,7 @@ while true; do
           --preview 'bat --style=numbers --color=always --paging=never --line-range :300 -- {} 2>/dev/null || head -n 300 -- {}' \
           --preview-window=right,60%,border,wrap \
           --preview-label=' Preview ' \
-          --bind 'alt-p:toggle-preview,ctrl-d:preview-half-page-down,ctrl-u:preview-half-page-up,enter:execute-silent(_ff_open {+})+abort,ctrl-q:execute-silent(_ff_open {+})+abort' \
+          --bind 'alt-p:toggle-preview,ctrl-d:preview-half-page-down,ctrl-u:preview-half-page-up,enter:execute-silent(code -r -- {+})+abort,ctrl-q:execute-silent(code -r -- {+})+abort' \
           --expect=alt-s,alt-.,alt-i \
           --print-query \
           --history="$HIST_FILE" \
@@ -153,4 +153,3 @@ while true; do
     *) break;;
   esac
 done || true
-
