@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# A tiny wrapper around ripgrep used by executable_sg.
+# It auto-adds -F (fixed strings) iff the query has no regex metacharacters.
+# Usage: sg_search [rg-opts ...] -- <query>
+
+args=()
+while (( "$#" )); do
+  case "$1" in
+    --)
+      shift
+      break
+      ;;
+    *)
+      args+=("$1")
+      shift
+      ;;
+  esac
+done
+
+q=${1-}
+if [[ -z "${q}" ]]; then
+  exit 0
+fi
+
+# Detect regex metacharacters; if none, prefer fixed-strings for speed.
+if [[ ! ${q} =~ [\[\]\(\)\|\?\*\+\{\}\.\^\$] ]]; then
+  exec rg -F "${args[@]}" -- "$q"
+else
+  exec rg "${args[@]}" -- "$q"
+fi
+
