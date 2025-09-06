@@ -4,6 +4,17 @@ set -euo pipefail
 # Optional: highlight the live query text in the preview (1=on, 0=off)
 HIGHLIGHT_QUERY="${HIGHLIGHT_QUERY:-1}"
 
+# --- smart path shortening (display-only) -----------------------------------
+# SG_MAX_LABEL controls the visible width of the left item label.
+# Default: half the terminal width (roughly the non-preview area).
+: "${SG_MAX_LABEL:=$(( ${COLUMNS:-80} / 2 ))}"
+: "${SG_ELLIPSIS:=…}"   # override with SG_ELLIPSIS=... if your font lacks '…'
+TAB=$'\t'
+
+# Accent color for matched text in ripgrep output (256-color index)
+# Use a LazyVim/TokyoNight-like blue (#7aa2f7 ≈ 111)
+: "${SG_MATCH_COLOR:=111}"
+
 # Optional initial query from args
 # shellcheck disable=SC2034
 QUERY="${*:-}"
@@ -55,7 +66,7 @@ build_rg() {
   # Keep output style the same but reduce work on huge lines
   RG=(rg --line-number --column --no-heading --follow \
         --no-messages --max-columns=300 --max-columns-preview \
-        --color=always)
+        --color=never)
   # hidden + ignore toggles (override user config if needed)
   if [ "$SHOW_HIDDEN" -eq 1 ]; then
     RG+=(--hidden)
@@ -83,8 +94,10 @@ build_rg() {
 # IMPORTANT: leave {1},{2},{q} unquoted; fzf provides safe quoting.
 # shellcheck disable=SC2016
 PREVIEW_CMD='
-  [ -z {1} ] && exit 0
-  L={2}; [ -z "$L" ] && L=1
+  [ -z {2} ] && exit 0
+  O={2}
+  F=${O%%:*}
+  L=${O#*:}; L=${L%%:*}; [ -z "$L" ] && L=1
   S=$((L>15 ? L-15 : 1))
   E=$((L+40))
 
@@ -96,37 +109,37 @@ PREVIEW_CMD='
   if command -v bat >/dev/null 2>&1; then
     if [ -n {q} ] && [ "$_want_q_hl" = "1" ]; then
       bat --paging=never --style=plain --color=always \
-          --line-range ${S}:${E} -- {1} \
-        | { rg --passthru --color=always -e {q} || true; } \
+          --line-range ${S}:${E} -- "$F" \
+        | { rg --passthru --color=always --colors "match:fg:'"${SG_MATCH_COLOR}"'" -e {q} || true; } \
         | nl -ba -w1 -s"  " \
         | awk -v rel="$R" '"'"'NR==rel{ bg="\033[48;2;47;51;77m"; off="\033[49m"; if (match($0, /^[[:space:]]*[0-9]+  /)) { p=substr($0,1,RLENGTH); c=substr($0,RLENGTH+1); } else { p=""; c=$0; } c=bg c; gsub(/\033\[0m/, "\033[0m" bg, c); gsub(/\033\[49m/, bg, c); printf "%s%s%s\n", p, c, off; next }1'"'"'
     else
       bat --paging=never --style=plain --color=always \
-          --line-range ${S}:${E} -- {1} \
+          --line-range ${S}:${E} -- "$F" \
         | nl -ba -w1 -s"  " \
         | awk -v rel="$R" '"'"'NR==rel{ bg="\033[48;2;47;51;77m"; off="\033[49m"; if (match($0, /^[[:space:]]*[0-9]+  /)) { p=substr($0,1,RLENGTH); c=substr($0,RLENGTH+1); } else { p=""; c=$0; } c=bg c; gsub(/\033\[0m/, "\033[0m" bg, c); gsub(/\033\[49m/, bg, c); printf "%s%s%s\n", p, c, off; next }1'"'"'
     fi
   elif command -v batcat >/dev/null 2>&1; then
     if [ -n {q} ] && [ "$_want_q_hl" = "1" ]; then
       batcat --paging=never --style=plain --color=always \
-             --line-range ${S}:${E} -- {1} \
-        | { rg --passthru --color=always -e {q} || true; } \
+             --line-range ${S}:${E} -- "$F" \
+        | { rg --passthru --color=always --colors "match:fg:'"${SG_MATCH_COLOR}"'" -e {q} || true; } \
         | nl -ba -w1 -s"  " \
         | awk -v rel="$R" '"'"'NR==rel{ bg="\033[48;2;47;51;77m"; off="\033[49m"; if (match($0, /^[[:space:]]*[0-9]+  /)) { p=substr($0,1,RLENGTH); c=substr($0,RLENGTH+1); } else { p=""; c=$0; } c=bg c; gsub(/\033\[0m/, "\033[0m" bg, c); gsub(/\033\[49m/, bg, c); printf "%s%s%s\n", p, c, off; next }1'"'"'
     else
       batcat --paging=never --style=plain --color=always \
-             --line-range ${S}:${E} -- {1} \
+             --line-range ${S}:${E} -- "$F" \
         | nl -ba -w1 -s"  " \
         | awk -v rel="$R" '"'"'NR==rel{ bg="\033[48;2;47;51;77m"; off="\033[49m"; if (match($0, /^[[:space:]]*[0-9]+  /)) { p=substr($0,1,RLENGTH); c=substr($0,RLENGTH+1); } else { p=""; c=$0; } c=bg c; gsub(/\033\[0m/, "\033[0m" bg, c); gsub(/\033\[49m/, bg, c); printf "%s%s%s\n", p, c, off; next }1'"'"'
     fi
   else
     # Portable fallback: use input redirection instead of "sed --"
     if [ -n {q} ] && [ "$_want_q_hl" = "1" ]; then
-      sed -n "${S},${E}p" < {1} | nl -ba -w1 -s"  " \
-        | { rg --passthru --color=always -e {q} || true; } \
+      sed -n "${S},${E}p" < "$F" | nl -ba -w1 -s"  " \
+        | { rg --passthru --color=always --colors "match:fg:'"${SG_MATCH_COLOR}"'" -e {q} || true; } \
         | awk -v rel="$R" '"'"'NR==rel{ bg="\033[48;2;47;51;77m"; off="\033[49m"; if (match($0, /^[[:space:]]*[0-9]+  /)) { p=substr($0,1,RLENGTH); c=substr($0,RLENGTH+1); } else { p=""; c=$0; } c=bg c; gsub(/\033\[0m/, "\033[0m" bg, c); gsub(/\033\[49m/, bg, c); printf "%s%s%s\n", p, c, off; next }1'"'"'
     else
-      sed -n "${S},${E}p" < {1} | nl -ba -w1 -s"  " \
+      sed -n "${S},${E}p" < "$F" | nl -ba -w1 -s"  " \
         | awk -v rel="$R" '"'"'NR==rel{ bg="\033[48;2;47;51;77m"; off="\033[49m"; if (match($0, /^[[:space:]]*[0-9]+  /)) { p=substr($0,1,RLENGTH); c=substr($0,RLENGTH+1); } else { p=""; c=$0; } c=bg c; gsub(/\033\[0m/, "\033[0m" bg, c); gsub(/\033\[49m/, bg, c); printf "%s%s%s\n", p, c, off; next }1'"'"'
     fi
   fi
@@ -145,7 +158,74 @@ while true; do
   RELOAD_CMD='
     QLEN=$(printf %s {q} | wc -c | tr -d "\n ")
     if [ "${QLEN:-0}" -ge '"$MIN_CHARS"' ]; then
-      '"${RG[*]}"' -- {q} || printf "::: \033[2mNo matches\033[0m\n"
+      '"${RG[*]}"' -- {q} \
+        | awk -v max='"$SG_MAX_LABEL"' -v E='"$SG_ELLIPSIS"' -F: '\''
+            function shorten(path, max, E,    p, base, dir, n, i, seg, out, cand, head, name, ext, avail, left, right) {
+              if (length(path) <= max) { return path }
+              # split into dir + base
+              p = 0
+              for (i = length(path); i >= 1; i--) { if (substr(path,i,1) == "/") { p = i; break } }
+              if (p == 0) {
+                left = int((max - 1) / 2)
+                right = max - 1 - left
+                return substr(path,1,left) E substr(path,length(path)-right+1)
+              }
+              dir = substr(path,1,p-1)
+              base = substr(path,p+1)
+              # build from the right
+              n = split(dir, arr, "/")
+              out = base
+              for (i = n; i >= 1; i--) {
+                seg = arr[i]
+                if (seg == "") continue
+                cand = seg "/" out
+                if (length(cand) + 2 <= max) { out = cand } else { break }
+              }
+              if (i >= 1) { out = E "/" out }
+              if (length(out) > max) {
+                # shrink basename in the middle
+                p = 0
+                for (i = length(out); i >= 1; i--) { if (substr(out,i,1) == "/") { p = i; break } }
+                head = (p>0 ? substr(out,1,p-1) : "")
+                name = (p>0 ? substr(out,p+1) : out)
+                ext = ""
+                for (i = length(name); i >= 1; i--) { if (substr(name,i,1) == ".") { ext = substr(name,i); name = substr(name,1,i-1); break } }
+                avail = max - length(head) - 1
+                if (avail < 5) { return substr(out, length(out)-max+1) }
+                left = int((avail - length(ext) - 1) / 2)
+                right = avail - length(ext) - 1 - left
+                if (left < 1) left = 1
+                if (right < 1) right = 1
+                out = head "/" substr(name,1,left) E substr(name, length(name)-right+1) ext
+              }
+              return out
+            }
+            {
+              file=$1
+              line=$2
+              col=$3
+              # strip any ANSI color sequences that rg may add to path (user rc)
+              gsub(/\033\[[0-9;]*m/, "", file)
+              label=shorten(file, max, E)
+              rest=$0
+              sub(/^[^:]*:/, "", rest)
+              sub(/^[^:]*:/, "", rest)
+              sub(/^[^:]*:/, "", rest)
+              pathpos = file ":" line ":" col
+              # Colors
+              cpath="\033[38;2;86;95;137m"    # #565f89 for path
+              cfile="\033[38;2;192;202;245m"  # #c0caf5 for filename
+              cres="\033[0m"
+              # split label into head/base
+              p = 0
+              for (i = length(label); i >= 1; i--) { if (substr(label,i,1) == "/") { p = i; break } }
+              head = (p==0 ? "" : substr(label, 1, p))
+              base = (p==0 ? label : substr(label, p+1))
+              # Only color path grey and filename white-ish; no query highlight here
+              labelc = cpath head cres cfile base cres
+              print labelc "\t" pathpos "\t" rest
+            }
+        '\'' || printf "::: \033[2mNo matches\033[0m\n"
     else
       printf ""
     fi
@@ -165,7 +245,7 @@ while true; do
     --header=''            # keep clean like LazyVim floating picker
     --border --layout=reverse
     --info=inline # shows 1/65 on the right
-    --delimiter=':'
+    --delimiter=$'\t' --with-nth=1,3 --nth=2
     --preview="${PREVIEW_CMD}"
     --preview-window='right,60%,border,wrap'
     --preview-label=' Preview '
@@ -173,8 +253,8 @@ while true; do
     --bind 'ctrl-d:preview-half-page-down,ctrl-u:preview-half-page-up'
     --bind 'alt-a:toggle-all'
     # IMPORTANT: leave placeholders unquoted here as well
-    --bind 'enter:execute-silent([ -n {1} ] && [ -n {2} ] && [ -n {3} ] && code -r --goto {1}:{2}:{3})+abort'
-    --bind 'ctrl-q:execute-silent([ -n {+1} ] && code -r --goto {+1}:{+2}:{+3})+abort'
+    --bind 'enter:execute-silent([ -n {2} ] && code -r --goto $(printf %s {2} | cut -d: -f1-3))+abort'
+    --bind 'ctrl-q:execute-silent(printf %s\n {+2} | while IFS= read -r O; do code -r --goto "$(printf %s "$O" | cut -d: -f1-3)"; done)+abort'
     # TokyoNight Moon palette (close to LazyVim)
     --color='fg:#c0caf5,bg:#1e2030,fg+:#c0caf5,bg+:#2f334d,hl:#ff9e64,hl+:#ff9e64'
     --color='border:#3b4261,gutter:#1e2030'
