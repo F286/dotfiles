@@ -27,7 +27,7 @@ NO_IGNORE=0    # Alt-i: include ignored files (no-ignore)
 CASE_MODE=smart  # Alt-c: cycle smart -> sensitive -> ignore
 
 # Match original behavior: search once query is non-empty
-MIN_CHARS=1
+MIN_CHARS=3
 
 # Hard requirements
 for cmd in rg fzf; do
