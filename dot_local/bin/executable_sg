@@ -64,7 +64,7 @@ cd "$ROOT"
 # Build the ripgrep command from current toggles
 build_rg() {
   # Keep output style the same but reduce work on huge lines
-  RG=(rg --line-number --column --no-heading --follow \
+  RG=(rg --line-number --column --no-heading \
         --no-messages --max-columns=300 --max-columns-preview \
         --color=never)
   # hidden + ignore toggles (override user config if needed)
