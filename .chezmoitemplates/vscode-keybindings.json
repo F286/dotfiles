@@ -753,8 +753,11 @@
   { "key": "ctrl+;", "command": "workbench.action.focusAuxiliaryBar",       "when": "!auxiliaryBarFocus" },
   { "key": "ctrl+;", "command": "workbench.action.focusActiveEditorGroup", "when": "!editorFocus && !sideBarFocus" },
 
-  // Esc always drops you back to the editor from bars/panel (but not LazyGit)
-  { "key": "escape", "command": "workbench.action.focusActiveEditorGroup", "when": "!editorFocus" },
+  // Esc from the bottom terminal panel focuses the editor
+  { "key": "escape", "command": "workbench.action.focusActiveEditorGroup", "when": "terminalFocus && panelFocus" },
+
+  // Esc from other UI (except terminals) still focuses the editor
+  { "key": "escape", "command": "workbench.action.focusActiveEditorGroup", "when": "!editorFocus && !terminalFocus" },
 
   // === Splits (one modifier only) ============================================
   { "key": "cmd+\\",  "command": "workbench.action.splitEditor" },

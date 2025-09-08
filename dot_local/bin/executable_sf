@@ -136,6 +136,8 @@ while true; do
 
     QLEN=$(printf %s {q} | wc -c | tr -d "\n ")
     if [ "${QLEN:-0}" -ge '"$MIN_CHARS"' ]; then
+      # Immediately clear stale results and show a searching placeholder
+      printf "::: \033[2mSearching…\033[0m\n"
       cmd=(git -c color.grep=false -c core.quotepath=off grep -n --column -I)
 
       # Fixed vs regex (use -E for extended RE to be closer to ripgrep default regex)
@@ -240,9 +242,10 @@ while true; do
               labelc = cpath head cres cfile base cres
               print labelc "\t" pathpos "\t" rest
             }
-        '\'' || printf "::: \033[2mNo matches\033[0m\n"
+        '\'' \
+        | awk '\''BEGIN{n=0} {n=1; print} END{if(n==0) printf "::: \033[2mNo matches\033[0m\n"}'\''
     else
-      printf ""
+      printf "::: \033[2mType to search\033[0m\n"
     fi
   '
 
@@ -275,7 +278,7 @@ while true; do
     --color='border:#3b4261,gutter:#1e2030'
     --color='spinner:#bb9af7,header:#565f89,pointer:#ff9e64,marker:#9ece6a'
     --color='prompt:#7aa2f7,query:#c0caf5,info:#565f89'
-    --border-label "Grep - $(basename "$ROOT")"
+    --border-label "Fast Grep - $(basename "$ROOT")"
     --history="$HIST_FILE"
     --print-query
   )
@@ -304,4 +307,3 @@ while true; do
 done
 
 exit 0
-
