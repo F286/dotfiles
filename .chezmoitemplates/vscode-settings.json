@@ -43,6 +43,15 @@
       "icon": "search",
       "overrideName": true
     },
+    "Fast Grep": {
+      "path": "/bin/zsh",
+      "args": [
+        "-lc",
+          "export PATH=/opt/homebrew/bin:/usr/local/bin:$PATH; source ~/.config/fzf/tokyonight.zsh 2>/dev/null; export RIPGREP_CONFIG_PATH=~/.ripgreprc; ~/.local/bin/sf || true; exit 0"
+      ],
+      "icon": "search",
+      "overrideName": true
+    },
     "Lazy Git": {
       "path": "/bin/zsh",
       "args": [
@@ -668,12 +677,12 @@
       ]
     },
 
-    // <leader> /  -> Search Grep in an editor tab, return on close
+    // <leader> /  -> Fast Grep in an editor tab, return on close
     {
       "before": ["<leader>", "/"],
       "commands": [
         { "command": "overlayTerminals.openProfile",
-          "args": { "profileName": "Search Grep", "location": "editor" } }
+          "args": { "profileName": "Fast Grep", "location": "editor" } }
       ]
     },
 
