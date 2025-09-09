@@ -11,11 +11,9 @@ exec fzf \
   --height=100% \
   --no-cycle \
   --prompt='   ' \
-  --color='prompt:#80a0ff,pointer:#ff5000,marker:#afff5f' \
   --bind "start:reload:rg --column --color=always --smart-case {q}||true" \
   --bind "change:reload:rg --column --color=always --smart-case {q}||true" \
   --delimiter : \
-  --preview 'bat --style=numbers --color=always --highlight-line {2} {1}' \
+  --preview 'bat --paging=never --style=numbers --color=always --highlight-line {2} -- {1}' \
   --preview-window 'bottom,30%,+{2}/2' \
   --bind 'enter:execute-silent(code -r -g {1}:{2})' \
-
