@@ -776,14 +776,13 @@
   { "key": "ctrl+shift+;", "command": "workbench.action.closeAuxiliaryBar" },
 
   // Unified right side: Auxiliary Bar (Cmd and Ctrl)
-  // Use visibility (not focus) so it also works when a webview has focus (e.g., Codex)
-  { "key": "cmd+;",  "command": "workbench.action.focusAuxiliaryBar",       "when": "!auxiliaryBarVisible" },
-  { "key": "cmd+;",  "when": "auxiliaryBarVisible", "command": "runCommands", "args": { "commands": [
+  { "key": "cmd+;",  "command": "workbench.action.focusAuxiliaryBar",       "when": "!auxiliaryBarFocus" },
+  { "key": "cmd+;",  "when": "auxiliaryBarFocus", "command": "runCommands", "args": { "commands": [
     "workbench.action.closeAuxiliaryBar",
     "workbench.action.focusActiveEditorGroup"
   ]}},
-  { "key": "ctrl+;", "command": "workbench.action.focusAuxiliaryBar",       "when": "!auxiliaryBarVisible" },
-  { "key": "ctrl+;", "when": "auxiliaryBarVisible", "command": "runCommands", "args": { "commands": [
+  { "key": "ctrl+;", "command": "workbench.action.focusAuxiliaryBar",       "when": "!auxiliaryBarFocus" },
+  { "key": "ctrl+;", "when": "auxiliaryBarFocus", "command": "runCommands", "args": { "commands": [
     "workbench.action.closeAuxiliaryBar",
     "workbench.action.focusActiveEditorGroup"
   ]}},
