@@ -524,7 +524,7 @@
   },
   {
     "key": "ctrl+k",
-    "command": "workbench.action.focusAboveGroup"
+    "command": "workbench.action.focusActiveEditorGroup"
   },
   {
     "key": "ctrl+l",
@@ -553,11 +553,27 @@
   // === ABSOLUTE one-keystroke toggles with focus ===
   // Left Side Bar (Explorer/SCM/Extensions...)
   { "key": "cmd+b", "command": "workbench.action.focusSideBar", "when": "!sideBarFocus" },
-  { "key": "cmd+b", "command": "workbench.action.focusActiveEditorGroup",  "when": "sideBarFocus" },
+  {
+    "key": "cmd+b",
+    "when": "sideBarFocus",
+    "command": "runCommands",
+    "args": { "commands": [
+      "workbench.action.closeSidebar",
+      "workbench.action.focusActiveEditorGroup"
+    ]}
+  },
 
   // Bottom Panel (Terminal/Problems/Output/Debug Console)
   { "key": "cmd+j", "command": "workbench.action.focusPanel", "when": "!panelFocus" },
-  { "key": "cmd+j", "command": "workbench.action.focusActiveEditorGroup",  "when": "panelFocus" },
+  {
+    "key": "cmd+j",
+    "when": "panelFocus",
+    "command": "runCommands",
+    "args": { "commands": [
+      "workbench.action.closePanel",
+      "workbench.action.focusActiveEditorGroup"
+    ]}
+  },
   { "key": "cmd+shift+j", "command": "workbench.action.closePanel" },
 
   // Close panels with Shift modifier
@@ -727,19 +743,31 @@
 
   // Left Side Bar (Explorer/SCM/Extensions...)
   { "key": "cmd+b",  "command": "workbench.action.focusSideBar", "when": "!sideBarFocus" },
-  { "key": "cmd+b",  "command": "workbench.action.focusActiveEditorGroup", "when": "sideBarFocus" },
+  { "key": "cmd+b",  "when": "sideBarFocus", "command": "runCommands", "args": { "commands": [
+    "workbench.action.closeSidebar",
+    "workbench.action.focusActiveEditorGroup"
+  ]}},
   { "key": "ctrl+b", "command": "workbench.action.focusSideBar", "when": "!sideBarFocus" },
-  { "key": "ctrl+b", "command": "workbench.action.focusActiveEditorGroup", "when": "sideBarFocus" },
+  { "key": "ctrl+b", "when": "sideBarFocus", "command": "runCommands", "args": { "commands": [
+    "workbench.action.closeSidebar",
+    "workbench.action.focusActiveEditorGroup"
+  ]}},
 
   // Toggle Explorer with Space e
   { "key": "space e", "command": "workbench.action.closeSidebar", "when": "explorerViewletVisible && filesExplorerFocus && !editorTextFocus" },
 
   // Bottom Panel (Terminal/Problems/Output/Debug Console)
   { "key": "cmd+j",  "command": "workbench.action.focusPanel", "when": "!panelFocus" },
-  { "key": "cmd+j",  "command": "workbench.action.focusActiveEditorGroup", "when": "panelFocus" },
+  { "key": "cmd+j",  "when": "panelFocus", "command": "runCommands", "args": { "commands": [
+    "workbench.action.closePanel",
+    "workbench.action.focusActiveEditorGroup"
+  ]}},
   { "key": "cmd+shift+j", "command": "workbench.action.closePanel" },
   { "key": "ctrl+j", "command": "workbench.action.focusPanel", "when": "!panelFocus" },
-  { "key": "ctrl+j", "command": "workbench.action.focusActiveEditorGroup", "when": "panelFocus" },
+  { "key": "ctrl+j", "when": "panelFocus", "command": "runCommands", "args": { "commands": [
+    "workbench.action.closePanel",
+    "workbench.action.focusActiveEditorGroup"
+  ]}},
 
   // Close panels with Shift modifier
   { "key": "cmd+shift+b", "command": "workbench.action.closeSidebar" },
@@ -749,9 +777,18 @@
 
   // Unified right side: Auxiliary Bar (Cmd and Ctrl)
   { "key": "cmd+;",  "command": "workbench.action.focusAuxiliaryBar",       "when": "!auxiliaryBarFocus" },
-  { "key": "cmd+;",  "command": "workbench.action.focusActiveEditorGroup", "when": "!editorFocus && !sideBarFocus" },
+  { "key": "cmd+;",  "when": "auxiliaryBarFocus", "command": "runCommands", "args": { "commands": [
+    "workbench.action.closeAuxiliaryBar",
+    "workbench.action.focusActiveEditorGroup"
+  ]}},
   { "key": "ctrl+;", "command": "workbench.action.focusAuxiliaryBar",       "when": "!auxiliaryBarFocus" },
-  { "key": "ctrl+;", "command": "workbench.action.focusActiveEditorGroup", "when": "!editorFocus && !sideBarFocus" },
+  { "key": "ctrl+;", "when": "auxiliaryBarFocus", "command": "runCommands", "args": { "commands": [
+    "workbench.action.closeAuxiliaryBar",
+    "workbench.action.focusActiveEditorGroup"
+  ]}},
+
+  // Focus editor directly
+  { "key": "cmd+k",  "command": "workbench.action.focusActiveEditorGroup" },
 
   // Esc from the bottom terminal panel focuses the editor
   { "key": "escape", "command": "workbench.action.focusActiveEditorGroup", "when": "terminalFocus && panelFocus" },
