@@ -557,7 +557,25 @@
       ],
       "commands": [
         "workbench.view.explorer",
-        "workbench.files.action.showActiveFileInExplorer"
+    "workbench.files.action.showActiveFileInExplorer"
+      ]
+    },
+    {
+      "before": [
+        "<leader>",
+        ";"
+      ],
+      "commands": [
+        "workbench.action.focusAuxiliaryBar"
+      ]
+    },
+    {
+      "before": [
+        "<leader>",
+        "t"
+      ],
+      "commands": [
+        "workbench.action.terminal.focus"
       ]
     },
     {

@@ -203,7 +203,7 @@
   {
     "key": "ctrl+u",
     "command": "runCommands",
-    "when": "textInputFocus && !auxiliaryBarFocus",
+    "when": "textInputFocus && !secondarySideBarFocus && !inSecondarySideBar",
     "args": {
       "commands": [
         "scrollLineUp",
@@ -245,7 +245,7 @@
   {
     "key": "ctrl+d",
     "command": "runCommands",
-    "when": "textInputFocus && !auxiliaryBarFocus",
+    "when": "textInputFocus && !secondarySideBarFocus && !inSecondarySideBar",
     "args": {
       "commands": [
         "scrollLineDown",
@@ -550,37 +550,14 @@
     "command": "workbench.action.increaseViewSize",
     "when": "editorTextFocus && vim.mode == 'Normal'"
   },
-  // === ABSOLUTE one-keystroke toggles with focus ===
-  // Left Side Bar (Explorer/SCM/Extensions...)
-  { "key": "cmd+b", "command": "workbench.action.focusSideBar", "when": "!sideBarFocus" },
-  {
-    "key": "cmd+b",
-    "when": "sideBarFocus",
-    "command": "runCommands",
-    "args": { "commands": [
-      "workbench.action.closeSidebar",
-      "workbench.action.focusActiveEditorGroup"
-    ]}
-  },
+  // Sidebar toggle (use VS Code default)
+  { "key": "cmd+b", "command": "workbench.action.toggleSidebarVisibility" },
 
-  // Bottom Panel (Terminal/Problems/Output/Debug Console)
-  { "key": "cmd+j", "command": "workbench.action.focusPanel", "when": "!panelFocus" },
-  {
-    "key": "cmd+j",
-    "when": "panelFocus",
-    "command": "runCommands",
-    "args": { "commands": [
-      "workbench.action.closePanel",
-      "workbench.action.focusActiveEditorGroup"
-    ]}
-  },
-  { "key": "cmd+shift+j", "command": "workbench.action.closePanel" },
+  // Bottom Panel (Terminal/Problems/Output/Debug Console) — default toggle
+  { "key": "cmd+j", "command": "workbench.action.togglePanel" },
 
-  // Close panels with Shift modifier
-  { "key": "cmd+shift+b", "command": "workbench.action.closeSidebar" },
-  { "key": "cmd+shift+;", "command": "workbench.action.closeAuxiliaryBar" },
-  { "key": "ctrl+shift+b", "command": "workbench.action.closeSidebar" },
-  { "key": "ctrl+shift+;", "command": "workbench.action.closeAuxiliaryBar" },
+
+  // Close panels with Shift modifier — removed to avoid conflicts
 
   // Page Copilot Chat history from input - macOS
   {
@@ -735,66 +712,26 @@
 
   // Right (Secondary) Side Bar — single ⌘ stroke (handled in unified block below)
 
-  // === ABSOLUTE one-keystroke toggles with focus (Cmd AND Ctrl) ==============
+  // === Simplified toggles (Cmd only) =========================================
   
-  // 1) Unbind macOS Emacs-like defaults that conflict
-  { "key": "ctrl+b", "command": "-cursorLeft" },
-  { "key": "ctrl+j", "command": "-lineBreak" }, // if you still see a conflict, remove whatever VS Code shows for Ctrl+J
+  // Removed ctrl unbinds
 
   // Left Side Bar (Explorer/SCM/Extensions...)
-  { "key": "cmd+b",  "command": "workbench.action.focusSideBar", "when": "!sideBarFocus" },
-  { "key": "cmd+b",  "when": "sideBarFocus", "command": "runCommands", "args": { "commands": [
-    "workbench.action.closeSidebar",
-    "workbench.action.focusActiveEditorGroup"
-  ]}},
-  { "key": "ctrl+b", "command": "workbench.action.focusSideBar", "when": "!sideBarFocus" },
-  { "key": "ctrl+b", "when": "sideBarFocus", "command": "runCommands", "args": { "commands": [
-    "workbench.action.closeSidebar",
-    "workbench.action.focusActiveEditorGroup"
-  ]}},
+  { "key": "cmd+b",  "command": "workbench.action.toggleSidebarVisibility" },
 
   // Toggle Explorer with Space e
   { "key": "space e", "command": "workbench.action.closeSidebar", "when": "explorerViewletVisible && filesExplorerFocus && !editorTextFocus" },
 
-  // Bottom Panel (Terminal/Problems/Output/Debug Console)
-  { "key": "cmd+j",  "command": "workbench.action.focusPanel", "when": "!panelFocus" },
-  { "key": "cmd+j",  "when": "panelFocus", "command": "runCommands", "args": { "commands": [
-    "workbench.action.closePanel",
-    "workbench.action.focusActiveEditorGroup"
-  ]}},
-  { "key": "cmd+shift+j", "command": "workbench.action.closePanel" },
-  { "key": "ctrl+j", "command": "workbench.action.focusPanel", "when": "!panelFocus" },
-  { "key": "ctrl+j", "when": "panelFocus", "command": "runCommands", "args": { "commands": [
-    "workbench.action.closePanel",
-    "workbench.action.focusActiveEditorGroup"
-  ]}},
+  // Bottom Panel (Terminal/Problems/Output/Debug Console) — default toggle
+  { "key": "cmd+j", "command": "workbench.action.togglePanel" },
 
-  // Close panels with Shift modifier
-  { "key": "cmd+shift+b", "command": "workbench.action.closeSidebar" },
-  { "key": "cmd+shift+;", "command": "workbench.action.closeAuxiliaryBar" },
-  { "key": "ctrl+shift+b", "command": "workbench.action.closeSidebar" },
-  { "key": "ctrl+shift+;", "command": "workbench.action.closeAuxiliaryBar" },
 
-  // Unified right side: Auxiliary Bar (Cmd and Ctrl)
-  { "key": "cmd+;",  "command": "workbench.action.focusAuxiliaryBar",       "when": "!auxiliaryBarFocus" },
-  { "key": "cmd+;",  "when": "auxiliaryBarFocus", "command": "runCommands", "args": { "commands": [
-    "workbench.action.closeAuxiliaryBar",
-    "workbench.action.focusActiveEditorGroup"
-  ]}},
-  { "key": "ctrl+;", "command": "workbench.action.focusAuxiliaryBar",       "when": "!auxiliaryBarFocus" },
-  { "key": "ctrl+;", "when": "auxiliaryBarFocus", "command": "runCommands", "args": { "commands": [
-    "workbench.action.closeAuxiliaryBar",
-    "workbench.action.focusActiveEditorGroup"
-  ]}},
+  // Unified right side: Secondary Side Bar — toggle
+  { "key": "cmd+;",  "command": "workbench.action.toggleAuxiliaryBar" },
 
   // Focus editor directly
   { "key": "cmd+k",  "command": "workbench.action.focusActiveEditorGroup" },
 
-  // Esc from the bottom terminal panel focuses the editor
-  { "key": "escape", "command": "workbench.action.focusActiveEditorGroup", "when": "terminalFocus && panelFocus" },
-
-  // Esc from other UI (except terminals) still focuses the editor
-  { "key": "escape", "command": "workbench.action.focusActiveEditorGroup", "when": "!editorFocus && !terminalFocus" },
 
   // === Splits (one modifier only) ============================================
   { "key": "cmd+\\",  "command": "workbench.action.splitEditor" },
