@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+set -euo pipefail
+CHROMIUM_SRC="${1:-${CHROMIUM_SRC:-}}"
+[[ -n "$CHROMIUM_SRC" && -d "$CHROMIUM_SRC" ]] || { echo "Usage: zoekt-overlay-watch /path/to/chromium/src" >&2; exit 2; }
+
+cmd=(~/.local/bin/zoekt-overlay-refresh "$CHROMIUM_SRC")
+
+if command -v watchexec >/dev/null 2>&1; then
+  exec watchexec -w "$CHROMIUM_SRC" --debounce 300ms --shell=none -- "${cmd[@]}"
+elif command -v fswatch >/dev/null 2>&1; then
+  fswatch -or 0.3 "$CHROMIUM_SRC" | while read -r _; do "${cmd[@]}"; done
+elif command -v inotifywait >/dev/null 2>&1; then
+  inotifywait -mrq -e modify,create,delete,move "$CHROMIUM_SRC" | \
+  awk 'BEGIN{cmd=":"} { if (cmd!="running") { system("'"'"${cmd[*]}"'"'" &"); cmd="running" } }'
+else
+  echo "Install one of: watchexec, fswatch, inotify-tools." >&2
+  exit 1
+fi

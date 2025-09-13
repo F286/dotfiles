@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+CHROMIUM_SRC="${1:-${CHROMIUM_SRC:-}}"
+[[ -n "$CHROMIUM_SRC" && -d "$CHROMIUM_SRC" ]] || { echo "Usage: zoekt-overlay-refresh /path/to/chromium/src" >&2; exit 2; }
+
+OVERLAY_DIR="${ZOEKT_OVERLAY_DIR:-$HOME/.zoekt/chromium-overlay}"
+STAGE="$OVERLAY_DIR/stage"
+IGNORE='(^|/)(out/|\.git/|\.cipd/)'
+
+rm -rf "$STAGE" "$OVERLAY_DIR"/*.zoekt "$OVERLAY_DIR"/*.zoekt.idx
+mkdir -p "$STAGE"
+
+# Gather changed/untracked and deleted files from all nested git repos.
+changed=()
+deleted=()
+
+while IFS= read -r -d '' g; do
+  repo="$(dirname "$g")"
+  pushd "$repo" >/dev/null
+  while IFS= read -r f; do [[ "$f" =~ $IGNORE ]] || changed+=("$repo/$f"); done < <(git ls-files -m -o --exclude-standard)
+  while IFS= read -r f; do [[ "$f" =~ $IGNORE ]] || deleted+=("$repo/$f"); done < <(git ls-files -d)
+  popd >/dev/null
+done < <(find "$CHROMIUM_SRC" -type d -name .git -print0)
+
+# Stage changed/untracked files via symlinks preserving relative paths.
+for f in "${changed[@]}"; do
+  rel="${f#$CHROMIUM_SRC/}"
+  dest="$STAGE/$rel"
+  mkdir -p "$(dirname "$dest")"
+  ln -s "$f" "$dest" 2>/dev/null || cp -p "$f" "$dest"
+done
+
+# Record deletions so rgx can suppress stale HEAD results for those paths.
+printf '%s\n' "${deleted[@]#$CHROMIUM_SRC/}" > "$OVERLAY_DIR/deleted.list"
+
+# Build the overlay Zoekt shard from the stage tree (non-git indexer).
+# zoekt-index walks a filesystem tree and writes shards to opts.IndexDir.
+zoekt-index -index "$OVERLAY_DIR" "$STAGE"
+echo "[zoekt] Overlay index refreshed: $(wc -l < "$OVERLAY_DIR/deleted.list") deleted, ${#changed[@]} changed/untracked."
