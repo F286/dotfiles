@@ -1,0 +1,12 @@
+# Make templates tolerant of missing keys like `.env.FOO` in CI.
+[template]
+  options = ["missingkey=zero"]
+
+# Use a sandbox target dir in CI so we never touch the runner's real HOME.
+{{- $tmp := coalesce (env "RUNNER_TEMP") (env "TMPDIR") (env "TEMP") (env "TMP") "/tmp" -}}
+destDir = "{{ joinPath $tmp "chezmoi-home" }}"
+
+# Ensure `.env` exists so `.env.*` lookups don't fail outright.
+[data]
+  env = {}
+
