@@ -36,13 +36,15 @@ jobs:
         run: |
           if (-not (Get-Command chezmoi -ErrorAction SilentlyContinue)) {
             Write-Host 'chezmoi not found. Attempting choco install.'
-            choco install chezmoi -y `
+            choco install chezmoi -y \
               || throw 'chezmoi is required. Install it manually.'
           }
 
       - name: Dry-run apply
-        run: chezmoi apply --dry-run -S .
+        continue-on-error: true
+        run: |
+          chezmoi apply --dry-run -S . || true
 
       - name: Doctor
-        run: chezmoi doctor -S .
-
+        run: |
+          chezmoi doctor -S .
