@@ -1,0 +1,13 @@
+# shellcheck shell=bash
+# ~/.zshenv — keep minimal
+: "${XDG_CONFIG_HOME:="$HOME/.config"}"
+export XDG_CONFIG_HOME
+
+# Safety net: if interactive, source personal config (once)
+if [[ -o interactive && -z ${PERSONAL_ZSH_LOADED-} ]]; then
+  if [[ -r "$XDG_CONFIG_HOME/zsh/personal.zsh" ]]; then
+    export PERSONAL_ZSH_LOADED=1
+    # shellcheck disable=SC1091
+    source "$XDG_CONFIG_HOME/zsh/personal.zsh"
+  fi
+fi
