@@ -4,8 +4,16 @@ if (-not (Get-Command go -ErrorAction SilentlyContinue)) {
   winget install -e --id GoLang.Go -h 0
 }
 
-$env:GOPATH = $env:GOPATH ?? "$env:USERPROFILE\go"
-$GOBIN = $env:GOBIN ?? (Join-Path $env:GOPATH "bin")
+# PowerShell 5.1 does not support the null-coalescing (??) operator.
+# Fall back to explicit checks when setting GOPATH and GOBIN.
+if (-not $env:GOPATH) {
+  $env:GOPATH = Join-Path $env:USERPROFILE 'go'
+}
+if ($env:GOBIN) {
+  $GOBIN = $env:GOBIN
+} else {
+  $GOBIN = Join-Path $env:GOPATH 'bin'
+}
 New-Item -ItemType Directory -Force -Path $GOBIN | Out-Null
 if (-not ((Get-Content $PROFILE -ErrorAction SilentlyContinue) -match [regex]::Escape($GOBIN))) {
   New-Item -ItemType File -Force -Path $PROFILE | Out-Null
@@ -14,7 +22,8 @@ if (-not ((Get-Content $PROFILE -ErrorAction SilentlyContinue) -match [regex]::E
 
 go install github.com/sourcegraph/zoekt/cmd/...@latest
 
-New-Item -ItemType Directory -Force -Path "$env:USERPROFILE\.zoekt\chromium" | Out-Null
-New-Item -ItemType Directory -Force -Path "$env:USERPROFILE\.zoekt\chromium-overlay" | Out-Null
+# Create the Zoekt index and overlay directories under %USERPROFILE%
+New-Item -ItemType Directory -Force -Path (Join-Path $env:USERPROFILE '.zoekt\chromium')        | Out-Null
+New-Item -ItemType Directory -Force -Path (Join-Path $env:USERPROFILE '.zoekt\chromium-overlay') | Out-Null
 Write-Host "[zoekt] Installed and created index dirs."
 {{ end -}}
