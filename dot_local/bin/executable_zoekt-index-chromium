@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+CHROMIUM_SRC="${1:-${CHROMIUM_SRC:-}}"
+[[ -n "$CHROMIUM_SRC" && -d "$CHROMIUM_SRC" ]] || { echo "Usage: zoekt-index-chromium /path/to/chromium/src" >&2; exit 2; }
+
+INDEX_DIR="${ZOEKT_INDEX_DIR:-$HOME/.zoekt/chromium}"
+PARALLELISM="${ZOEKT_INDEX_JOBS:-$(command -v nproc >/dev/null 2>&1 && nproc || sysctl -n hw.ncpu || echo 4)}"
+
+mapfile -t repos < <(find "$CHROMIUM_SRC" -type d -name .git -prune \
+  -not -path '*/out/*' -not -path '*/.cipd/*' -print | xargs -I{} dirname {} | sort -u)
+
+echo "[zoekt] Indexing ${#repos[@]} git repos into $INDEX_DIR ..."
+printf '%s\0' "${repos[@]}" | xargs -0 -n1 -P "$PARALLELISM" bash -c '
+  set -euo pipefail
+  repo="$1"
+  echo "  -> $repo"
+  exec zoekt-git-index -index "'"$INDEX_DIR"'" -branches HEAD -incremental "$repo"
+' bash

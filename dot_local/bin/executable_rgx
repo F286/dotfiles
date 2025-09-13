@@ -1,0 +1,105 @@
+#!/usr/bin/env bash
+set -euo pipefail
+# Subset of ripgrep flags -> Zoekt query
+FIXED=0; IGNORE_CASE=0; SMART=0; WORD=0
+INCLUDE_GLOBS=(); EXCLUDE_GLOBS=(); TYPES=(); PATTERN=""; PATHS=()
+
+usage(){ cat <<'USAGE'
+Usage: rgx [OPTIONS] <pattern> [PATH...]
+Options: -F -i -S -w -g/--glob GLOB [-t LANG]  --  (subset of ripgrep)
+Env: ZOEKT_INDEX_DIR (HEAD), ZOEKT_OVERLAY_DIR (working tree), RGX_FORMAT=vs|vimgrep
+USAGE
+}
+
+escape_re(){ sed -e 's/[.^$\\*+?(){}\[\]|]/\\\&/g'; }
+glob_to_re(){ local g="$1"; g="${g//\\\\/\/}"; g="${g//\./\\.}"; g="${g//\*\*/.*}"; g="${g//\*/[^/]*}"; g="${g//\?/.}"; printf '%s' "$g"; }
+
+while (( $# )); do
+  case "$1" in
+    -F|--fixed-strings) FIXED=1; shift;;
+    -i) IGNORE_CASE=1; shift;;
+    -S) SMART=1; shift;;
+    -w) WORD=1; shift;;
+    -g|--glob|--glob=*)
+      val="${1#--glob=}"; [[ "$val" == "$1" ]] && { val="$2"; shift; }
+      if [[ "$val" == !* ]]; then EXCLUDE_GLOBS+=("${val:1}"); else INCLUDE_GLOBS+=("$val"); fi
+      shift;;
+    -t) TYPES+=("$2"); shift 2;;
+    -h|--help) usage; exit 0;;
+    --) shift; break;;
+    -*) shift;; # passthrough ignored; use ripgrep for special cases
+    *) if [[ -z "$PATTERN" ]]; then PATTERN="$1"; else PATHS+=("$1"); fi; shift;;
+  esac
+done
+while (( $# )); do PATHS+=("$1"); shift; done
+[[ -n "$PATTERN" ]] || { usage >&2; exit 2; }
+
+P="$PATTERN"
+[[ $FIXED -eq 1 ]] && P="$(printf '%s' "$P" | escape_re)"
+[[ $WORD  -eq 1 ]] && P="\\b${P}\\b"
+
+CASE=""
+[[ $IGNORE_CASE -eq 1 ]] && CASE="case:no"
+[[ $SMART -eq 1 ]] && CASE="${CASE:-case:auto}"
+
+FILTERS=()
+for g in "${INCLUDE_GLOBS[@]}"; do FILTERS+=("file:$(glob_to_re "$g")"); done
+for g in "${EXCLUDE_GLOBS[@]}"; do FILTERS+=("-file:$(glob_to_re "$g")"); done
+for p in "${PATHS[@]}"; do FILTERS+=("file:$(glob_to_re "$p")"); done
+for t in "${TYPES[@]}"; do
+  case "$t" in
+    c|cpp|cc|cxx) FILTERS+=("file:(\\.c$|\\.cc$|\\.cpp$|\\.cxx$|\\.h$|\\.hh$|\\.hpp$|\\.hxx$)");;
+    js|ts)        FILTERS+=("file:(\\.js$|\\.jsx$|\\.ts$|\\.tsx$)");;
+    go)           FILTERS+=("file:(\\.go$)");; py|python) FILTERS+=("file:(\\.py$)");;
+    rs|rust)      FILTERS+=("file:(\\.rs$)");;
+  esac
+done
+
+Q=""
+[[ -n "$CASE" ]] && Q="$CASE "
+for f in "${FILTERS[@]}"; do Q+="$f "; done
+Q+="$P"
+
+INDEX_DIR="${ZOEKT_INDEX_DIR:-$HOME/.zoekt/chromium}"
+OVERLAY_DIR="${ZOEKT_OVERLAY_DIR:-$HOME/.zoekt/chromium-overlay}"
+ZOEKTCMD="${ZOEKTCMD:-zoekt}"
+
+# Build changed+deleted set to filter HEAD duplicates.
+declare -A CHSET=()
+if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+  while read -r f; do [[ -n "$f" ]] && CHSET["$f"]=1; done < <(git status --porcelain | awk '{print $2}')
+fi
+if [[ -f "$OVERLAY_DIR/deleted.list" ]]; then
+  while read -r f; do CHSET["$f"]=1; done < "$OVERLAY_DIR/deleted.list"
+fi
+
+tmp_overlay="$(mktemp)"; tmp_head="$(mktemp)"
+trap 'rm -f "$tmp_overlay" "$tmp_head"' EXIT
+
+# 1) Overlay first (latest edits). zoekt prints: path:line:col: text
+"$ZOEKTCMD" -index "$OVERLAY_DIR" "$Q" > "$tmp_overlay" 2>/dev/null || true
+
+# 2) Head index, but drop files that are in CHSET (changed/deleted)
+"$ZOEKTCMD" -index "$INDEX_DIR" "$Q" | awk -F: -v OFS=: '
+  BEGIN{ while ((getline < '"$OVERLAY_DIR"'/deleted.list)>0) del[$0]=1; }
+  {
+    file=$1; # relative path
+    if (file in del) next;
+    if (ENVIRON["CH_FILTER"]=="1") { next } # replaced below
+    print $0
+  }' > "$tmp_head"
+
+# Filter HEAD against CHSET in the shell for portability
+: > "${tmp_head}.filtered"
+while IFS= read -r line; do
+  f="${line%%:*}"
+  [[ -n "${CHSET[$f]:-}" ]] && continue
+  printf '%s\n' "$line" >> "${tmp_head}.filtered"
+done < "$tmp_head"
+
+# Merge and render Visual Studio clickable format (file(line,col): text)
+cat "$tmp_overlay" "${tmp_head}.filtered" | awk -F: '{
+  file=$1; line=$2; col=$3; $1=$2=$3=""; sub(/^ *:/,"");
+  if (ENVIRON["RGX_FORMAT"]=="vimgrep") { print file ":" line ":" col ":" $0; }
+  else { printf "%s(%s,%s): %s\n", file, line, col, $0 }
+}'

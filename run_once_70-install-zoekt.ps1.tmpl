@@ -1,0 +1,20 @@
+{{ if eq .chezmoi.os "windows" -}}
+$ErrorActionPreference = 'Stop'
+if (-not (Get-Command go -ErrorAction SilentlyContinue)) {
+  winget install -e --id GoLang.Go -h 0
+}
+
+$env:GOPATH = $env:GOPATH ?? "$env:USERPROFILE\go"
+$GOBIN = $env:GOBIN ?? (Join-Path $env:GOPATH "bin")
+New-Item -ItemType Directory -Force -Path $GOBIN | Out-Null
+if (-not ((Get-Content $PROFILE -ErrorAction SilentlyContinue) -match [regex]::Escape($GOBIN))) {
+  New-Item -ItemType File -Force -Path $PROFILE | Out-Null
+  Add-Content -Path $PROFILE -Value "`n`$env:Path = `"$GOBIN;`$env:Path`"`n"
+}
+
+go install github.com/sourcegraph/zoekt/cmd/...@latest
+
+New-Item -ItemType Directory -Force -Path "$env:USERPROFILE\.zoekt\chromium" | Out-Null
+New-Item -ItemType Directory -Force -Path "$env:USERPROFILE\.zoekt\chromium-overlay" | Out-Null
+Write-Host "[zoekt] Installed and created index dirs."
+{{ end -}}

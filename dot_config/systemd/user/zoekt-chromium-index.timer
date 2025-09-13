@@ -1,0 +1,10 @@
+[Unit]
+Description=Update HEAD index regularly
+
+[Timer]
+OnBootSec=2min
+OnUnitActiveSec=10min
+AccuracySec=30s
+
+[Install]
+WantedBy=timers.target

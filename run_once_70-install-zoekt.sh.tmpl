@@ -1,0 +1,24 @@
+{{ if ne .chezmoi.os "windows" -}}
+#!/usr/bin/env bash
+set -euo pipefail
+
+if command -v brew >/dev/null 2>&1; then
+  brew install go universal-ctags || true
+elif command -v apt-get >/dev/null 2>&1; then
+  sudo apt-get update -y
+  sudo apt-get install -y golang-go universal-ctags || true
+elif command -v dnf >/dev/null 2>&1; then
+  sudo dnf install -y golang ctags || true
+fi
+
+export GOPATH="${GOPATH:-$HOME/go}"
+export GOBIN="${GOBIN:-$GOPATH/bin}"
+mkdir -p "$GOBIN"
+case ":$PATH:" in *":$GOBIN:"*) ;; *) echo 'export PATH="$HOME/go/bin:$PATH"' >> "$HOME/.profile";; esac
+
+go install github.com/sourcegraph/zoekt/cmd/...@latest
+
+mkdir -p "${ZOEKT_INDEX_DIR:-$HOME/.zoekt/chromium}" "${ZOEKT_OVERLAY_DIR:-$HOME/.zoekt/chromium-overlay}"
+
+echo "[zoekt] Installed CLI + created index dirs."
+{{ end -}}

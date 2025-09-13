@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+set -euo pipefail
+repo="$(git rev-parse --show-toplevel)"
+zoekt-git-index -index "${ZOEKT_INDEX_DIR:-$HOME/.zoekt/chromium}" -branches HEAD -incremental "$repo" >/dev/null 2>&1 || true

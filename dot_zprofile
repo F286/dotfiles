@@ -1,1 +1,5 @@
 export RIPGREP_CONFIG_PATH="$HOME/.ripgreprc"
+
+export CHROMIUM_SRC="$HOME/src/chromium/src"
+export ZOEKT_INDEX_DIR="$HOME/.zoekt/chromium"
+export ZOEKT_OVERLAY_DIR="$HOME/.zoekt/chromium-overlay"
