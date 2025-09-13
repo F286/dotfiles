@@ -19,7 +19,7 @@ bindkey -v  # vi mode; change to emacs if you prefer
 
 # PATH (dedupe)
 typeset -U path PATH
-path+=("$HOME/bin" "$HOME/.local/bin")
+path+=("$HOME/bin" "$HOME/.local/bin" "$HOME/go/bin")
 
 # Aliases (add more)
 alias ll='ls -lah'

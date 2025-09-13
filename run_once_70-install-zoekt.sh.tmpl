@@ -14,7 +14,16 @@ fi
 export GOPATH="${GOPATH:-$HOME/go}"
 export GOBIN="${GOBIN:-$GOPATH/bin}"
 mkdir -p "$GOBIN"
-case ":$PATH:" in *":$GOBIN:"*) ;; *) echo 'export PATH="$HOME/go/bin:$PATH"' >> "$HOME/.profile";; esac
+case ":$PATH:" in *":$GOBIN:"*) ;;
+  *)
+    # Add Go binaries to PATH for future shells
+    if [[ "${SHELL:-}" == *"zsh"* ]]; then
+      echo 'export PATH="$HOME/go/bin:$PATH"' >> "$HOME/.zprofile"
+    else
+      echo 'export PATH="$HOME/go/bin:$PATH"' >> "$HOME/.profile"
+    fi
+    ;;
+esac
 
 go install github.com/sourcegraph/zoekt/cmd/...@latest
 
