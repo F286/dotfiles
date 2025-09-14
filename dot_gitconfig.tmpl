@@ -1,9 +1,3 @@
 [user]
     name = Free Debreuil
     email = freedebreuil@gmail.com
-
-# Use corp identity when a remote URL matches googlesource/chromium/etc.
-[includeIf "hasconfig:remote.*.url:https://*.googlesource.com/**"]
-    path = ~/.config/git/work-google.inc
-[includeIf "hasconfig:remote.*.url:https://chromium.googlesource.com/**"]
-    path = ~/.config/git/work-google.inc

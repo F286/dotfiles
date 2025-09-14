@@ -37,7 +37,7 @@ autoload -Uz compinit && compinit -i
 # source_if_exists "$HOME/.zsh-plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
 
 # Work overlay (optional)
-source_if_exists "${XDG_CONFIG_HOME:-$HOME/.config}/zsh/work/google.zsh"
+source_if_exists "${XDG_CONFIG_HOME:-$HOME/.config}/zsh/work.zsh"
 
 # Local, untracked tweaks (ignored by chezmoi)
 source_if_exists "${XDG_CONFIG_HOME:-$HOME/.config}/zsh/local.zsh"
