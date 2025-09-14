@@ -1,7 +1,1 @@
 export RIPGREP_CONFIG_PATH="$HOME/.ripgreprc"
-
-# Environment variables used by the real-time Zoekt search integration.
-export CHROMIUM_SRC="$HOME/src/chromium/src"
-export ZOEKT_INDEX_DIR="$HOME/.zoekt/chromium"
-export ZOEKT_OVERLAY_DIR="$HOME/.zoekt/chromium-overlay"
-export PATH="$HOME/go/bin:$PATH"

@@ -1,9 +1,0 @@
-[Unit]
-Description=Zoekt overlay watcher (working tree)
-
-[Service]
-Type=simple
-Environment=CHROMIUM_SRC=%h/src/chromium/src
-ExecStart=%h/.local/bin/zoekt-overlay-watch
-Restart=always
-RestartSec=2

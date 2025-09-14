@@ -1,7 +1,0 @@
-[Unit]
-Description=Zoekt incremental HEAD index for Chromium
-
-[Service]
-Type=oneshot
-Environment=CHROMIUM_SRC=%h/src/chromium/src
-ExecStart=%h/.local/bin/zoekt-index-chromium
