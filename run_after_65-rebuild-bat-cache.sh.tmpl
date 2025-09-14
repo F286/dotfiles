@@ -11,7 +11,5 @@ elif command -v batcat >/dev/null 2>&1; then
 fi
 
 if [ -n "$BAT_BIN" ]; then
-  echo "Rebuilding bat cache..."
-  "$BAT_BIN" cache --build
-  echo "Bat cache rebuilt successfully!"
+  "$BAT_BIN" cache --build >/dev/null
 fi
