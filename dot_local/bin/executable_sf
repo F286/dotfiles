@@ -16,4 +16,3 @@ exec fzf \
   --delimiter : \
   --preview 'bat --paging=never --style=numbers --color=always --highlight-line {2} -- {1}' \
   --preview-window 'bottom,30%,+{2}/2' \
-  --bind 'enter:execute-silent(code -r -g {1}:{2})' \
