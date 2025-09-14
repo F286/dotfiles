@@ -1,12 +1,14 @@
 {
   "recommendations": [
-    "TomPollak.lazygit-vscode",
     "vscodevim.vim",
-    "qufiwefefwoyn.kanagawa",
+    "mcaragheorghe.vim-enhanced",
     "formulahendry.auto-close-tag",
     "RodrigoScola.vscode-textobjects",
-    "TomRijndorp.find-it-faster",
-    "enkia.tokyo-night"
+    "enkia.tokyo-night",
+    "jeff-hykin.better-cpp-syntax",
+    "FreeDebreuil.overlay-terminal",
+    "esbenp.prettier-vscode",
+    "ms-vscode-remote.remote-ssh"
   ],
   "unwantedRecommendations": []
 }
