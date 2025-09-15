@@ -21,6 +21,11 @@ config.send_composed_key_when_left_alt_is_pressed = true
 config.send_composed_key_when_right_alt_is_pressed = true
 config.enable_kitty_keyboard = true
 
+-- Ensure a login zsh so all init files load under WezTerm
+if wezterm.target_triple:find("darwin") then
+  config.default_prog = { "/bin/zsh", "-l" }
+end
+
 -- Key remaps for macOS
 if wezterm.target_triple:find("darwin") then
   config.keys = config.keys or {}
@@ -53,4 +58,3 @@ else
 end
 
 return config
-

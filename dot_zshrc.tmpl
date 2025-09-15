@@ -4,8 +4,6 @@
 [ -f "$HOME/.config/shell/00-editor.sh" ] && . "$HOME/.config/shell/00-editor.sh"
 
 # Delegate to personal config if present (idempotent)
-if [ -z "${PERSONAL_ZSH_LOADED-}" ] && [ -r "${XDG_CONFIG_HOME:-$HOME/.config}/zsh/personal.zsh" ]; then
-  export PERSONAL_ZSH_LOADED=1
+if [ -r "${XDG_CONFIG_HOME:-$HOME/.config}/zsh/personal.zsh" ]; then
   . "${XDG_CONFIG_HOME:-$HOME/.config}/zsh/personal.zsh"
 fi
-
