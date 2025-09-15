@@ -1,6 +1,6 @@
 # Dotfiles
 
-Personal dotfiles for my development environment, managed with [chezmoi](https://www.chezmoi.io/). Chezmoi bootstraps a vanilla [LazyVim](https://lazyvim.github.io) configuration for Neovim and also sets up tools like Ripgrep, Helix, Kitty, VS Code, and more so they can be reproduced on any machine. JetBrainsMono Nerd Font is installed and configured as the default font for VS Code, Windows Terminal, macOS Terminal, and Kitty.
+Personal dotfiles for my development environment, managed with [chezmoi](https://www.chezmoi.io/). Chezmoi bootstraps a vanilla [LazyVim](https://lazyvim.github.io) configuration for Neovim and also sets up tools like Ripgrep, Helix, Kitty, VS Code, and more so they can be reproduced on any machine. JetBrainsMono Nerd Font is installed and configured as the default font for VS Code, Windows Terminal, macOS Terminal, and Kitty. It also configures Google Chrome to install the [Vimium](https://chromewebstore.google.com/detail/vimium/dbepggeogbaibhgnhhndojpepiihcmeb) extension automatically.
 
 ## Installation with chezmoi
 
