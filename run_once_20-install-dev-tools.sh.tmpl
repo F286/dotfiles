@@ -1,0 +1,224 @@
+{{- if ne .chezmoi.os "windows" -}}
+#!/usr/bin/env bash
+set -euo pipefail
+
+have() { command -v "$1" >/dev/null 2>&1; }
+
+APT_UPDATED=0
+apt_install() {
+  have apt-get || return 1
+  if [ "$APT_UPDATED" -eq 0 ]; then
+    sudo apt-get update -y
+    APT_UPDATED=1
+  fi
+  sudo apt-get install -y "$@" || return 1
+}
+
+ZYPPER_REFRESHED=0
+zypper_install() {
+  have zypper || return 1
+  if [ "$ZYPPER_REFRESHED" -eq 0 ]; then
+    sudo zypper refresh >/dev/null 2>&1 || true
+    ZYPPER_REFRESHED=1
+  fi
+  sudo zypper install -y "$@" || return 1
+}
+
+install_pkg() {
+  # shellcheck disable=SC2034
+  local _label="$1"
+  shift
+  local spec manager pkg
+  for spec in "$@"; do
+    manager="${spec%%=*}"
+    pkg="${spec#*=}"
+    case "$manager" in
+      brew)
+        if have brew; then
+          if ! brew list "$pkg" >/dev/null 2>&1; then
+            brew install "$pkg" >/dev/null 2>&1 || brew install "$pkg"
+          fi
+          return 0
+        fi
+        ;;
+      apt-get)
+        if apt_install "$pkg"; then
+          return 0
+        fi
+        ;;
+      dnf)
+        if have dnf; then
+          if sudo dnf install -y "$pkg"; then
+            return 0
+          fi
+        fi
+        ;;
+      pacman)
+        if have pacman; then
+          if sudo pacman -S --needed --noconfirm "$pkg"; then
+            return 0
+          fi
+        fi
+        ;;
+      zypper)
+        if zypper_install "$pkg"; then
+          return 0
+        fi
+        ;;
+      apk)
+        if have apk; then
+          if sudo apk add --no-cache "$pkg"; then
+            return 0
+          fi
+        fi
+        ;;
+    esac
+  done
+  return 1
+}
+
+ensure_oh_my_zsh() {
+  if [ -d "$HOME/.oh-my-zsh" ]; then
+    return
+  fi
+
+  local url tmp
+  url="https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh"
+  tmp="$(mktemp)"
+
+  if have curl; then
+    if curl -fsSL "$url" -o "$tmp"; then
+      if RUNZSH=no CHSH=no KEEP_ZSHRC=yes sh "$tmp" --unattended; then
+        :
+      else
+        echo "oh-my-zsh installer failed; please install manually." >&2
+      fi
+    else
+      echo "Failed to download oh-my-zsh installer via curl." >&2
+    fi
+  elif have wget; then
+    if wget -qO "$tmp" "$url"; then
+      if RUNZSH=no CHSH=no KEEP_ZSHRC=yes sh "$tmp" --unattended; then
+        :
+      else
+        echo "oh-my-zsh installer failed; please install manually." >&2
+      fi
+    else
+      echo "Failed to download oh-my-zsh installer via wget." >&2
+    fi
+  else
+    echo "Install oh-my-zsh manually (need curl or wget)." >&2
+  fi
+
+  rm -f "$tmp"
+}
+
+ensure_neovim() {
+  if ! have nvim; then
+    install_pkg "neovim" \
+      brew=neovim \
+      apt-get=neovim \
+      dnf=neovim \
+      pacman=neovim \
+      zypper=neovim \
+      apk=neovim || echo "Skipping neovim install: no supported package manager." >&2
+  fi
+
+  if ! have git; then
+    echo "git not found; skipping LazyVim bootstrap." >&2
+    return
+  fi
+
+  local config_dir="${XDG_CONFIG_HOME:-$HOME/.config}/nvim"
+  local tmp
+  tmp="$(mktemp -d)"
+
+  if git clone --depth=1 https://github.com/LazyVim/starter "$tmp/starter"; then
+    rm -rf "$config_dir"
+    mkdir -p "$(dirname "$config_dir")"
+    mv "$tmp/starter" "$config_dir"
+    rm -rf "$config_dir/.git"
+  else
+    echo "Failed to clone LazyVim starter; leaving existing config untouched." >&2
+  fi
+
+  rm -rf "$tmp"
+}
+
+ensure_helix() {
+  have hx && return
+  install_pkg "helix" \
+    brew=helix \
+    apt-get=helix \
+    dnf=helix \
+    pacman=helix \
+    zypper=helix \
+    apk=helix || echo "Install helix manually (hx command not found)." >&2
+}
+
+ensure_lazygit() {
+  have lazygit && return
+  if install_pkg "lazygit" \
+    brew=lazygit \
+    apt-get=lazygit \
+    pacman=lazygit \
+    zypper=lazygit \
+    dnf=lazygit \
+    apk=lazygit; then
+    return
+  fi
+  if have dnf; then
+    if sudo dnf copr enable -y atim/lazygit && sudo dnf install -y lazygit; then
+      return
+    fi
+  fi
+  echo "Install lazygit manually (no supported package manager)." >&2
+}
+
+ensure_ripgrep() {
+  have rg && return
+  install_pkg "ripgrep" \
+    brew=ripgrep \
+    apt-get=ripgrep \
+    dnf=ripgrep \
+    pacman=ripgrep \
+    zypper=ripgrep \
+    apk=ripgrep || echo "Install ripgrep manually." >&2
+}
+
+ensure_bat() {
+  if have bat; then
+    return
+  fi
+
+  if have batcat; then
+    mkdir -p "$HOME/.local/bin"
+    ln -sf "$(command -v batcat)" "$HOME/.local/bin/bat"
+    return
+  fi
+
+  if install_pkg "bat" \
+    brew=bat \
+    apt-get=bat \
+    dnf=bat \
+    pacman=bat \
+    zypper=bat \
+    apk=bat; then
+    :
+  else
+    echo "Install bat manually." >&2
+  fi
+
+  if ! have bat && have batcat; then
+    mkdir -p "$HOME/.local/bin"
+    ln -sf "$(command -v batcat)" "$HOME/.local/bin/bat"
+  fi
+}
+
+ensure_oh_my_zsh
+ensure_neovim
+ensure_helix
+ensure_lazygit
+ensure_ripgrep
+ensure_bat
+{{- end -}}

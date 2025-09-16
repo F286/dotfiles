@@ -14,7 +14,7 @@ source_dir() {
   local f; for f in "$dir"/*.zsh; do . "$f"; done
 }
 
-# Oh My Zsh (only if installed)
+# Prompt: oh-my-zsh (default)
 if [ -d "$HOME/.oh-my-zsh" ]; then
   export ZSH="${ZSH:-$HOME/.oh-my-zsh}"
   : "${ZSH_THEME:=robbyrussell}"
@@ -39,8 +39,7 @@ if ! typeset -f omz >/dev/null 2>&1; then
   autoload -Uz compinit && compinit -i
 fi
 
-# Prompt (pick one)
-# eval "$(starship init zsh)"
+# Optional alternative prompts (disabled)
 # [[ -r "$HOME/.p10k.zsh" ]] && . "$HOME/.p10k.zsh"
 
 # Plugins (optional; keep lightweight)
