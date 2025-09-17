@@ -1,8 +1,144 @@
-{{- if ne .chezmoi.os "windows" -}}
 #!/usr/bin/env bash
 set -euo pipefail
 
+# Skip on Windows environments.
+case "$(uname -s)" in
+  MSYS*|MINGW*|CYGWIN*|*Windows*) exit 0 ;;
+  *) : ;;
+esac
+
+echo "Running run_once_20-install-dev-tools for $(uname -mo)" >&2
+
 have() { command -v "$1" >/dev/null 2>&1; }
+
+ensure_local_bin() {
+  mkdir -p "$HOME/.local/bin"
+  PATH="$HOME/.local/bin:$PATH"
+}
+
+version_lt() {
+  [ "$(printf '%s\n%s\n' "$1" "$2" | sort -V | head -n1)" != "$2" ]
+}
+
+github_latest_asset_url() {
+  local repo="$1" pattern="$2" python_bin
+  if have python3; then
+    python_bin=python3
+  elif have python; then
+    python_bin=python
+  else
+    return 1
+  fi
+  "$python_bin" - "$repo" "$pattern" <<'PY'
+import json
+import re
+import sys
+import urllib.request
+
+if len(sys.argv) != 3:
+    sys.exit(1)
+repo = sys.argv[1]
+pattern = re.compile(sys.argv[2])
+
+url = f"https://api.github.com/repos/{repo}/releases/latest"
+headers = {
+    "Accept": "application/vnd.github+json",
+    "User-Agent": "chezmoi-dotfiles"
+}
+req = urllib.request.Request(url, headers=headers)
+with urllib.request.urlopen(req) as resp:
+    data = json.load(resp)
+for asset in data.get("assets", []):
+    name = asset.get("name", "")
+    if pattern.search(name):
+        print(asset["browser_download_url"])
+        sys.exit(0)
+sys.exit(1)
+PY
+}
+
+install_neovim_release() {
+  ensure_local_bin
+  local arch suffix folder tmp url
+  case "$(uname -m)" in
+    x86_64|amd64) suffix="linux64"; folder="nvim-linux64" ;;
+    aarch64|arm64) suffix="linux-arm64"; folder="nvim-linux-arm64" ;;
+    *) echo "Unsupported architecture for Neovim binary." >&2; return 1 ;;
+  esac
+  url="https://github.com/neovim/neovim/releases/download/stable/nvim-${suffix}.tar.gz"
+  echo "Downloading Neovim ${suffix} release..." >&2
+  tmp=$(mktemp -d)
+  if ! curl -fsSLo "$tmp/nvim.tar.gz" "$url"; then
+    rm -rf "$tmp"
+    return 1
+  fi
+  if ! tar -C "$tmp" -xf "$tmp/nvim.tar.gz"; then
+    rm -rf "$tmp"
+    return 1
+  fi
+  rm -rf "$HOME/.local/lib/nvim"
+  mkdir -p "$HOME/.local/lib"
+  mv "$tmp/$folder" "$HOME/.local/lib/nvim"
+  ln -sf "$HOME/.local/lib/nvim/bin/nvim" "$HOME/.local/bin/nvim"
+  rm -rf "$tmp"
+  echo "Installed Neovim to $HOME/.local/lib/nvim" >&2
+}
+
+install_helix_release() {
+  ensure_local_bin
+  local arch url tmp top
+  case "$(uname -m)" in
+    x86_64|amd64) arch="x86_64" ;;
+    aarch64|arm64) arch="aarch64" ;;
+    *) echo "Unsupported architecture for Helix." >&2; return 1 ;;
+  esac
+  url=$(github_latest_asset_url "helix-editor/helix" "helix-.*-${arch}-linux\\.tar\\.xz") || return 1
+  echo "Downloading Helix ${arch} release..." >&2
+  tmp=$(mktemp -d)
+  if ! curl -fsSLo "$tmp/helix.tar.xz" "$url"; then
+    rm -rf "$tmp"
+    return 1
+  fi
+  if ! tar -C "$tmp" -xf "$tmp/helix.tar.xz"; then
+    rm -rf "$tmp"
+    return 1
+  fi
+  top=$(find "$tmp" -mindepth 1 -maxdepth 1 -type d -name 'helix-*' | head -n1)
+  if [ -z "$top" ]; then
+    rm -rf "$tmp"
+    return 1
+  fi
+  install -m 0755 "$top/hx" "$HOME/.local/bin/hx"
+  rm -rf "$HOME/.local/share/helix"
+  mkdir -p "$HOME/.local/share"
+  cp -r "$top/runtime" "$HOME/.local/share/helix"
+  rm -rf "$tmp"
+  echo "Installed Helix to $HOME/.local/bin/hx" >&2
+}
+
+install_lazygit_release() {
+  ensure_local_bin
+  local arch url tmp
+  case "$(uname -m)" in
+    x86_64|amd64) arch="x86_64" ;;
+    aarch64|arm64) arch="arm64" ;;
+    *) echo "Unsupported architecture for lazygit." >&2; return 1 ;;
+  esac
+  url=$(github_latest_asset_url "jesseduffield/lazygit" "lazygit_.*_Linux_${arch}\\.tar\\.gz") || return 1
+  echo "Downloading lazygit ${arch} release..." >&2
+  tmp=$(mktemp -d)
+  if ! curl -fsSLo "$tmp/lazygit.tar.gz" "$url"; then
+    rm -rf "$tmp"
+    return 1
+  fi
+  if ! tar -C "$tmp" -xf "$tmp/lazygit.tar.gz" lazygit; then
+    rm -rf "$tmp"
+    return 1
+  fi
+  install -m 0755 "$tmp/lazygit" "$HOME/.local/bin/lazygit"
+  rm -rf "$tmp"
+  echo "Installed lazygit to $HOME/.local/bin/lazygit" >&2
+}
 
 APT_UPDATED=0
 apt_install() {
@@ -25,7 +161,6 @@ zypper_install() {
 }
 
 install_pkg() {
-  # shellcheck disable=SC2034
   local _label="$1"
   shift
   local spec manager pkg
@@ -121,7 +256,16 @@ ensure_neovim() {
       dnf=neovim \
       pacman=neovim \
       zypper=neovim \
-      apk=neovim || echo "Skipping neovim install: no supported package manager." >&2
+      apk=neovim || install_neovim_release || echo "Skipping neovim install: no supported package manager." >&2
+  fi
+
+  if have nvim; then
+    local current required
+    current="$(nvim --version | head -n1 | awk '{print $2}' | sed 's/^v//')"
+    required="0.8.0"
+    if version_lt "$current" "$required"; then
+      install_neovim_release || true
+    fi
   fi
 
   if ! have git; then
@@ -147,13 +291,19 @@ ensure_neovim() {
 
 ensure_helix() {
   have hx && return
-  install_pkg "helix" \
+  if install_pkg "helix" \
     brew=helix \
     apt-get=helix \
     dnf=helix \
     pacman=helix \
     zypper=helix \
-    apk=helix || echo "Install helix manually (hx command not found)." >&2
+    apk=helix; then
+    return
+  fi
+  if install_helix_release; then
+    return
+  fi
+  echo "Install helix manually (hx command not found)." >&2
 }
 
 ensure_lazygit() {
@@ -171,6 +321,9 @@ ensure_lazygit() {
     if sudo dnf copr enable -y atim/lazygit && sudo dnf install -y lazygit; then
       return
     fi
+  fi
+  if install_lazygit_release; then
+    return
   fi
   echo "Install lazygit manually (no supported package manager)." >&2
 }
@@ -221,4 +374,3 @@ ensure_helix
 ensure_lazygit
 ensure_ripgrep
 ensure_bat
-{{- end -}}
