@@ -16,9 +16,6 @@
   "chat.agent.enabled": true,
   "chat.tools.autoApprove": true,
   "chat.agent.maxRequests": 50,
-  "overlayTerminals.hideUI.activityBar": true,
-  "overlayTerminals.hideUI.statusBar": true,
-  "overlayTerminals.hideUI.editorTabs": true,
   "terminal.integrated.letterSpacing": 1.0,
   "terminal.integrated.fontWeight": "normal",
   "terminal.integrated.fontFamily": "'JetBrainsMono Nerd Font', monospace",
@@ -48,6 +45,24 @@
       "args": [
         "-lc",
           "export PATH=/opt/homebrew/bin:/usr/local/bin:$PATH; source ~/.config/fzf/tokyonight.zsh 2>/dev/null; export RIPGREP_CONFIG_PATH=~/.ripgreprc; ~/.local/bin/sf || true; exit 0"
+      ],
+      "icon": "search",
+      "overrideName": true
+    },
+    "Search Text": {
+      "path": "/bin/zsh",
+      "args": [
+        "-lc",
+          "export PATH=/opt/homebrew/bin:/usr/local/bin:$PATH; source ~/.config/fzf/tokyonight.zsh 2>/dev/null; export RIPGREP_CONFIG_PATH=~/.ripgreprc; ~/.local/bin/st --code || true; exit 0"
+      ],
+      "icon": "search",
+      "overrideName": true
+    },
+    "Search Index": {
+      "path": "/bin/zsh",
+      "args": [
+        "-lc",
+          "export PATH=/opt/homebrew/bin:/usr/local/bin:$PATH; source ~/.config/fzf/tokyonight.zsh 2>/dev/null; export RIPGREP_CONFIG_PATH=~/.ripgreprc; ~/.local/bin/si || true; exit 0"
       ],
       "icon": "search",
       "overrideName": true
@@ -646,7 +661,20 @@
         "t"
       ],
       "commands": [
-        "workbench.action.findInFiles"
+        { "command": "overlayTerminals.openProfile",
+          "args": { "profileName": "Search Text", "location": "editor" } }
+      ]
+    },
+    // <leader> s i  -> Build/refresh Zoekt index in an editor tab, return on close
+    {
+      "before": [
+        "<leader>",
+        "s",
+        "i"
+      ],
+      "commands": [
+        { "command": "overlayTerminals.openProfile",
+          "args": { "profileName": "Search Index", "location": "editor" } }
       ]
     },
     {
