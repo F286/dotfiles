@@ -3,7 +3,7 @@
   // Disable line move shortcuts
   { "key": "alt+down", "command": "-editor.action.moveLinesDownAction" },
   { "key": "alt+up", "command": "-editor.action.moveLinesUpAction" },
-{{- if eq .chezmoi.os "darwin" }}
+
   // ----- Word navigation on ⌘ + ← / → -----
   // Remove defaults (line start/end) that would conflict:
   { "key": "cmd+left",  "command": "-cursorHome", "when": "editorTextFocus" },
@@ -33,7 +33,6 @@
   { "key": "enter",      "command": "list.select",         "when": "explorerViewletVisible && filesExplorerFocus && !inputFocus" },
   { "key": "cmd+enter",  "command": "renameFile",          "when": "explorerViewletVisible && filesExplorerFocus && !inputFocus" },
   { "key": "ctrl+enter", "command": "explorer.openToSide", "when": "explorerViewletVisible && filesExplorerFocus && !inputFocus" },
-{{- end }}
 
   // Page Down - workround to make cursor movement match Nvim
   {
