@@ -40,10 +40,12 @@ command -v bat >/dev/null 2>&1 || {
   exit 1
 }
 
-# We output three colon-delimited fields for fzf:
+# We output four colon-delimited fields for fzf:
 #   1: raw path
 #   2: raw line number
-#   3: pretty display (colored "path:line[:col]: text" with rg match highlights)
+#   3: raw column (falls back to 1 if unavailable)
+#   4: pretty display (colored "path:line[:col]: text" with rg match highlights)
+# - fzf shows only field 4 (with-nth=4..), but uses {1}, {2}, {3} in bindings and previews.
 reload_cmd="cd '$root' && rg --line-number --column --with-filename --no-heading --color=always --smart-case -- {q} \
   | awk 'BEGIN{
       FS=\":\"; OFS=\":\";
@@ -67,12 +69,13 @@ reload_cmd="cd '$root' && rg --line-number --column --with-filename --no-heading
         }
         pretty = mag p rst \" \" gre rst \" \" gre rst \" \" rest;
       } else {
+        c=1;
         if (match(rest, /^[^:]*:[^:]*:/)) {
           rest = substr(rest, RLENGTH + 1);
         }
         pretty = mag p rst \"   \" rst \"   \" rest;
       }
-      print p, l, pretty;
+      print p, l, c, pretty;
     }'"
 
 for i in "${!ADDITIONAL_ARGS[@]}"; do
@@ -85,7 +88,7 @@ exec fzf \
   --disabled \
   --height=100% \
   --delimiter : \
-  --with-nth=3.. \
+  --with-nth=4.. \
   --bind "start:reload:${reload_cmd} || true" \
   --bind "change:reload:${reload_cmd} || true" \
   --preview "cd '${root}' && bat --style=numbers --color=always {2} {1}" \

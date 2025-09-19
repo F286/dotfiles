@@ -1,154 +1,22 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-QUERY="${*:-}"
+# Build args as an array so quoting stays correct.
+# Build args as an array so quoting stays correct.
+ADDITIONAL_ARGS=(--bind "enter:become(cd '{root}' && nvim +{2} {1})")
 
-# toggles
-SHOW_HIDDEN=0       # Alt-. toggles
-NO_IGNORE=0         # Alt-i toggles (respect .gitignore by default)
-
-# Open files in an existing VS Code window when possible
-_ff_open() {
-  if command -v code >/dev/null 2>&1; then
-    # Prefer explicit long flag for clarity
-    code --reuse-window -- "$@"
-    return
-  fi
-  # Common alternates
-  for c in code-insiders codium cursor; do
-    if command -v "$c" >/dev/null 2>&1; then
-      "$c" --reuse-window -- "$@"
-      return
-    fi
-  done
-  # macOS fallback
-  if [ "$(uname -s)" = "Darwin" ]; then
-    # Try opening via the app with reuse flag
-    open -g -a "Visual Studio Code" --args -r -- "$@" 2>/dev/null || true
-    return
-  fi
-  # Generic fallback
-  xdg-open "$@" >/dev/null 2>&1 || true
-}
-
-# 0) Jump to repo root (like LazyVim/Telescope rooter)
-if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
-  cd "$(git rev-parse --show-toplevel)"
-else
-  # Fallback: walk up to find common project markers
-  find_project_root() {
-    local d="$PWD"
-    local markers=(
-      package.json pnpm-workspace.yaml yarn.lock package-lock.json
-      go.mod Cargo.toml pyproject.toml requirements.txt
-      composer.json Makefile CMakeLists.txt
-    )
-    while [ "$d" != "/" ]; do
-      for m in "${markers[@]}"; do
-        if [ -e "$d/$m" ]; then
-          printf '%s' "$d"
-          return 0
-        fi
-      done
-      d="$(dirname "$d")"
-    done
-    return 1
-  }
-  if root="$(find_project_root)"; then
-    cd "$root"
-  fi
+if [[ "${1:-}" == "--code" ]]; then
+  # Open at line without becoming; keep fzf running. Work relative to search root.
+  ADDITIONAL_ARGS=(
+    --bind 'enter:execute-silent(code -r --goto {1}:{2}:{3})+abort' \
+  )
+  shift
 fi
 
-# 1) Build source list (NUL-separated for safety) based on toggles
-build_emit() {
-  # Fast-path for huge git repos (e.g. Chromium): use index instead of walking FS
-  if git rev-parse --is-inside-work-tree >/dev/null 2>&1 \
-     && [ "$SHOW_HIDDEN" -eq 0 ] && [ "$NO_IGNORE" -eq 0 ]; then
-    # Tracked files only (fast, avoids walking untracked tree), NUL-separated
-    printf '%s\n' git -c core.quotepath=false ls-files -z
-    return
-  fi
-
-  if command -v fd >/dev/null 2>&1; then
-    local args=(fd -0 --type f --follow --exclude .git)
-    [ "$SHOW_HIDDEN" -eq 1 ] && args+=(--hidden)
-    [ "$NO_IGNORE" -eq 1 ] && args+=(--no-ignore)
-    printf '%s\n' "${args[@]}"
-  elif command -v rg >/dev/null 2>&1; then
-    local args=(rg -0 --files -g '!.git')
-    [ "$SHOW_HIDDEN" -eq 1 ] && args+=(--hidden)
-    [ "$NO_IGNORE" -eq 1 ] && args+=(-uu)
-    printf '%s\n' "${args[@]}"
-  elif git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
-    # Limited toggles with git source. Hidden/ignored toggles are not applied here.
-    printf '%s\n' git -c core.quotepath=false ls-files -co --exclude-standard -z
-  else
-    printf '%s\n' find . -type f -print0
-  fi
-}
-
-# 2) Stream paths only (no icons) for speed on huge repos.
-#    We rely on fzf's delimiter to search by basename when desired.
-
-ROOT_LABEL="$(basename "$PWD")"
-HIST_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/fzf-history"
-mkdir -p "$HIST_DIR"
-HIST_FILE="$HIST_DIR/ff"
-MANUAL_PATH=0
-
-# 3) Run fzf with toggles for path search, hidden, ignore
-# Default: search by basename only (fast)
-nth='-1'   # fzf field selector: last path token (basename)
-prompt=' Files  '
-while true; do
-  # Auto path-mode if user hasn't manually toggled and query contains '/'
-  if [ "$MANUAL_PATH" -eq 0 ]; then
-    if printf '%s' "$QUERY" | grep -q '/'; then
-      nth='1..-1'; prompt=' Path   '
-    else
-      nth='-1'; prompt=' Files  '
-    fi
-  fi
-  # rebuild emitter each pass
-  IFS=$'\n' read -r -d '' -a EMIT < <(build_emit && printf '\0') || true
-  out=$("${EMIT[@]}" \
-    | FZF_DEFAULT_OPTS="${FZF_DEFAULT_OPTS-}" \
-      fzf --read0 --ansi \
-          --height=100% \
-          --margin=1,2 \
-          --border --layout=reverse \
-          --info=inline \
-          --color='fg:#c0caf5,bg:#1e2030,fg+:#c0caf5,bg+:#2f334d,hl:#ff9e64,hl+:#ff9e64' \
-          --color='border:#3b4261,gutter:#1e2030' \
-          --color='spinner:#bb9af7,header:#565f89,pointer:#ff9e64,marker:#9ece6a,prompt:#7aa2f7,query:#c0caf5,info:#565f89' \
-          --prompt="$prompt" \
-          --delimiter='/' \
-          --nth="$nth" \
-          --tiebreak=begin,index \
-          --preview 'bat --style=numbers --color=always --paging=never --line-range :300 -- {} 2>/dev/null || head -n 300 -- {}' \
-          --preview-window=right,60%,border,wrap \
-          --preview-label=' 󰈔 Preview ' \
-          --bind 'alt-p:toggle-preview,ctrl-d:preview-half-page-down,ctrl-u:preview-half-page-up,enter:execute-silent(code -r -- {+})+abort,ctrl-q:execute-silent(code -r -- {+})+abort' \
-          --expect=alt-s,alt-.,alt-i \
-          --print-query \
-          --history="$HIST_FILE" \
-          --select-1 --exit-0 \
-          --multi \
-          --border-label "󰒲 Lazy Files • ${ROOT_LABEL}" \
-          --query "$QUERY")
-  key=$(printf '%s\n' "$out" | head -n1)
-  QUERY=$(printf '%s\n' "$out" | sed -n '2p')
-  case "$key" in
-    alt-s)
-      if [ "$nth" = '-1' ]; then
-        nth='1..-1'; prompt=' Path   '
-      else
-        nth='-1'; prompt=' Files  '
-      fi
-      MANUAL_PATH=1
-      ;;
-    alt-.) SHOW_HIDDEN=$((1-SHOW_HIDDEN));;
-    alt-i) NO_IGNORE=$((1-NO_IGNORE));;
-    *) break;;
-  esac
-done || true
+exec fzf \
+  --tiebreak=pathname \
+  --delimiter : \
+  --height=100% \
+  --preview 'bat --style=numbers --color=always --line-range :500 {}' \
+  --preview-window 'right,55%' \
+  "${ADDITIONAL_ARGS[@]}"
