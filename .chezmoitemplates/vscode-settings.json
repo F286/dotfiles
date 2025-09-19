@@ -160,6 +160,8 @@
   "vim.handleKeys": {
     "<tab>": false,
     "<S-tab>": false,
+    "<S-j>": false,
+    "<S-k>": false,
     "<C-o>": true,
     "<C-i>": true,
     "<C-c>": false,
