@@ -728,7 +728,7 @@
       "before": ["<leader>", "/"],
       "commands": [
         { "command": "overlayTerminals.openProfile",
-          "args": { "profileName": "Fast Grep", "location": "editor" } }
+          "args": { "profileName": "Search Text", "location": "editor" } }
       ]
     },
 
