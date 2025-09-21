@@ -13,6 +13,9 @@ if [[ "${1:-}" == "--code" ]]; then
   shift
 fi
 
+: "${FZF_DEFAULT_COMMAND:=rg --files}"
+export FZF_DEFAULT_COMMAND
+
 exec fzf \
   --tiebreak=pathname \
   --delimiter : \
