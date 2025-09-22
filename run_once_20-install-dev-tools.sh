@@ -328,6 +328,17 @@ ensure_lazygit() {
   echo "Install lazygit manually (no supported package manager)." >&2
 }
 
+ensure_fzf() {
+  have fzf && return
+  install_pkg "fzf" \
+    brew=fzf \
+    apt-get=fzf \
+    dnf=fzf \
+    pacman=fzf \
+    zypper=fzf \
+    apk=fzf || echo "Install fzf manually." >&2
+}
+
 ensure_ripgrep() {
   have rg && return
   install_pkg "ripgrep" \
@@ -372,5 +383,6 @@ ensure_oh_my_zsh
 ensure_neovim
 ensure_helix
 ensure_lazygit
+ensure_fzf
 ensure_ripgrep
 ensure_bat
