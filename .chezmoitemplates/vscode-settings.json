@@ -734,6 +734,17 @@
       ]
     },
 
+    // <leader> *  -> Fast Grep with word under cursor in an editor tab
+    {
+      "before": ["<leader>", "*"],
+      "after": ["\"", "+", "y", "i", "w"],
+      "commands": [
+        { "command": "overlayTerminals.openProfile",
+          "args": { "profileName": "Search Text", "location": "editor" } },
+        "workbench.action.terminal.paste"
+      ]
+    },
+
     {
       "before": [
         "<leader>",
