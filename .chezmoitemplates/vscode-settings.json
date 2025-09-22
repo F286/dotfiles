@@ -26,7 +26,7 @@
       "args": [
         "-lc",
         // Ensure brew bins are visible; source theme; feed ripgrep config; run ff
-        "export PATH=/opt/homebrew/bin:/usr/local/bin:$PATH; source ~/.config/fzf/tokyonight.zsh 2>/dev/null; export RIPGREP_CONFIG_PATH=~/.ripgreprc; ~/.local/bin/ff || true; exit 0"
+        "export PATH=/opt/homebrew/bin:/usr/local/bin:$PATH; source ~/.config/fzf/tokyonight.zsh 2>/dev/null; export RIPGREP_CONFIG_PATH=~/.ripgreprc; ~/.local/bin/ff --code || true; exit 0"
       ],
       "icon": "search",
       "overrideName": true
@@ -35,7 +35,7 @@
       "path": "/bin/zsh",
       "args": [
         "-lc",
-          "export PATH=/opt/homebrew/bin:/usr/local/bin:$PATH; source ~/.config/fzf/tokyonight.zsh 2>/dev/null; export RIPGREP_CONFIG_PATH=~/.ripgreprc; ~/.local/bin/sg || true; exit 0"
+          "export PATH=/opt/homebrew/bin:/usr/local/bin:$PATH; source ~/.config/fzf/tokyonight.zsh 2>/dev/null; export RIPGREP_CONFIG_PATH=~/.ripgreprc; ~/.local/bin/sg --code || true; exit 0"
       ],
       "icon": "search",
       "overrideName": true
@@ -44,7 +44,7 @@
       "path": "/bin/zsh",
       "args": [
         "-lc",
-          "export PATH=/opt/homebrew/bin:/usr/local/bin:$PATH; source ~/.config/fzf/tokyonight.zsh 2>/dev/null; export RIPGREP_CONFIG_PATH=~/.ripgreprc; ~/.local/bin/sf || true; exit 0"
+          "export PATH=/opt/homebrew/bin:/usr/local/bin:$PATH; source ~/.config/fzf/tokyonight.zsh 2>/dev/null; export RIPGREP_CONFIG_PATH=~/.ripgreprc; ~/.local/bin/sf --code || true; exit 0"
       ],
       "icon": "search",
       "overrideName": true
@@ -62,7 +62,7 @@
       "path": "/bin/zsh",
       "args": [
         "-lc",
-          "export PATH=/opt/homebrew/bin:/usr/local/bin:$PATH; source ~/.config/fzf/tokyonight.zsh 2>/dev/null; export RIPGREP_CONFIG_PATH=~/.ripgreprc; ~/.local/bin/si || true; exit 0"
+          "export PATH=/opt/homebrew/bin:/usr/local/bin:$PATH; source ~/.config/fzf/tokyonight.zsh 2>/dev/null; export RIPGREP_CONFIG_PATH=~/.ripgreprc; ~/.local/bin/si --code || true; exit 0"
       ],
       "icon": "search",
       "overrideName": true
