@@ -339,6 +339,19 @@ ensure_fzf() {
     apk=fzf || echo "Install fzf manually." >&2
 }
 
+rebuild_bat_cache() {
+  local bat_bin=""
+  if have bat; then
+    bat_bin="bat"
+  elif have batcat; then
+    bat_bin="batcat"
+  fi
+
+  if [ -n "$bat_bin" ]; then
+    "$bat_bin" cache --build >/dev/null 2>&1 || true
+  fi
+}
+
 ensure_ripgrep() {
   have rg && return
   install_pkg "ripgrep" \
@@ -352,12 +365,14 @@ ensure_ripgrep() {
 
 ensure_bat() {
   if have bat; then
+    rebuild_bat_cache
     return
   fi
 
   if have batcat; then
     mkdir -p "$HOME/.local/bin"
     ln -sf "$(command -v batcat)" "$HOME/.local/bin/bat"
+    rebuild_bat_cache
     return
   fi
 
@@ -377,6 +392,8 @@ ensure_bat() {
     mkdir -p "$HOME/.local/bin"
     ln -sf "$(command -v batcat)" "$HOME/.local/bin/bat"
   fi
+
+  rebuild_bat_cache
 }
 
 ensure_oh_my_zsh
