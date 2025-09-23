@@ -11,6 +11,19 @@ echo "Running run_once_20-install-dev-tools for $(uname -mo)" >&2
 
 have() { command -v "$1" >/dev/null 2>&1; }
 
+SUDO_CMD=""
+if have sudo && [ "$(id -u)" -ne 0 ]; then
+  SUDO_CMD="sudo"
+fi
+
+maybe_sudo() {
+  if [ -n "$SUDO_CMD" ]; then
+    "$SUDO_CMD" "$@"
+  else
+    "$@"
+  fi
+}
+
 ensure_local_bin() {
   mkdir -p "$HOME/.local/bin"
   PATH="$HOME/.local/bin:$PATH"
@@ -144,20 +157,20 @@ APT_UPDATED=0
 apt_install() {
   have apt-get || return 1
   if [ "$APT_UPDATED" -eq 0 ]; then
-    sudo apt-get update -y
+    maybe_sudo apt-get update -y
     APT_UPDATED=1
   fi
-  sudo apt-get install -y "$@" || return 1
+  maybe_sudo apt-get install -y "$@" || return 1
 }
 
 ZYPPER_REFRESHED=0
 zypper_install() {
   have zypper || return 1
   if [ "$ZYPPER_REFRESHED" -eq 0 ]; then
-    sudo zypper refresh >/dev/null 2>&1 || true
+    maybe_sudo zypper refresh >/dev/null 2>&1 || true
     ZYPPER_REFRESHED=1
   fi
-  sudo zypper install -y "$@" || return 1
+  maybe_sudo zypper install -y "$@" || return 1
 }
 
 install_pkg() {
@@ -183,14 +196,14 @@ install_pkg() {
         ;;
       dnf)
         if have dnf; then
-          if sudo dnf install -y "$pkg"; then
+          if maybe_sudo dnf install -y "$pkg"; then
             return 0
           fi
         fi
         ;;
       pacman)
         if have pacman; then
-          if sudo pacman -S --needed --noconfirm "$pkg"; then
+          if maybe_sudo pacman -S --needed --noconfirm "$pkg"; then
             return 0
           fi
         fi
@@ -202,7 +215,7 @@ install_pkg() {
         ;;
       apk)
         if have apk; then
-          if sudo apk add --no-cache "$pkg"; then
+          if maybe_sudo apk add --no-cache "$pkg"; then
             return 0
           fi
         fi
@@ -249,6 +262,16 @@ ensure_oh_my_zsh() {
 }
 
 ensure_neovim() {
+  if ! have git; then
+    install_pkg "git" \
+      brew=git \
+      apt-get=git \
+      dnf=git \
+      pacman=git \
+      zypper=git \
+      apk=git || true
+  fi
+
   if ! have nvim; then
     install_pkg "neovim" \
       brew=neovim \
@@ -318,7 +341,7 @@ ensure_lazygit() {
     return
   fi
   if have dnf; then
-    if sudo dnf copr enable -y atim/lazygit && sudo dnf install -y lazygit; then
+    if maybe_sudo dnf copr enable -y atim/lazygit && maybe_sudo dnf install -y lazygit; then
       return
     fi
   fi
