@@ -20,8 +20,8 @@ chezmoi apply
 ### Linux
 
 ```bash
-sh -c "$curl -fsLS get.chezmoi.io/lb)" -- init --apply $F286
-sudo ~/.local/bin/chezmoi apply
+sh -c "$(curl -fsLS get.chezmoi.io/lb)" -- init --apply $F286
+~/.local/bin/chezmoi apply
 
 
 sudo apt-get update -qq && sudo apt-get install -y git chezmoi
