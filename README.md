@@ -19,12 +19,15 @@ chezmoi apply
 
 ### Linux
 
+do this to install chezmoi on linux correclty
+
 ```bash
-sh -c "$(curl -fsLS get.chezmoi.io/lb)" -- init --apply $F286
-~/.local/bin/chezmoi apply
+sudo curl -fsSL https://github.com/twpayne/chezmoi/releases/latest/download/chezmoi-linux-amd64 -o /usr/bin/chezmoi
 
+sudo chmod +x /usr/bin/chezmoi
+```
 
-sudo apt-get update -qq && sudo apt-get install -y git chezmoi
+```bash
 chezmoi init F286
 # Review changes if desired
 chezmoi diff

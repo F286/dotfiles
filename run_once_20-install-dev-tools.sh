@@ -71,30 +71,9 @@ PY
 }
 
 install_neovim_release() {
-  ensure_local_bin
-  local arch suffix folder tmp url
-  case "$(uname -m)" in
-    x86_64|amd64) suffix="linux64"; folder="nvim-linux64" ;;
-    aarch64|arm64) suffix="linux-arm64"; folder="nvim-linux-arm64" ;;
-    *) echo "Unsupported architecture for Neovim binary." >&2; return 1 ;;
-  esac
-  url="https://github.com/neovim/neovim/releases/download/stable/nvim-${suffix}.tar.gz"
-  echo "Downloading Neovim ${suffix} release..." >&2
-  tmp=$(mktemp -d)
-  if ! curl -fsSLo "$tmp/nvim.tar.gz" "$url"; then
-    rm -rf "$tmp"
-    return 1
-  fi
-  if ! tar -C "$tmp" -xf "$tmp/nvim.tar.gz"; then
-    rm -rf "$tmp"
-    return 1
-  fi
-  rm -rf "$HOME/.local/lib/nvim"
-  mkdir -p "$HOME/.local/lib"
-  mv "$tmp/$folder" "$HOME/.local/lib/nvim"
-  ln -sf "$HOME/.local/lib/nvim/bin/nvim" "$HOME/.local/bin/nvim"
-  rm -rf "$tmp"
-  echo "Installed Neovim to $HOME/.local/lib/nvim" >&2
+  # Download latest neovim release from GitHub releases and pipe it to tar to extract it to /usr
+  curl -sL https://github.com/neovim/neovim/releases/latest/download/nvim-linux-x86_64.tar.gz \
+  | sudo tar -xzf - --strip-components=1 --overwrite -C /usr
 }
 
 install_helix_release() {
