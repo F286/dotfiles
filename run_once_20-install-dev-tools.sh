@@ -71,9 +71,10 @@ PY
 }
 
 install_neovim_release() {
-  # Download latest neovim release from GitHub releases and pipe it to tar to extract it to /usr
-  curl -sL https://github.com/neovim/neovim/releases/latest/download/nvim-linux-x86_64.tar.gz \
-  | sudo tar -xzf - --strip-components=1 --overwrite -C /usr
+  ensure_local_bin
+  sudo curl -LO https://github.com/neovim/neovim/releases/latest/download/nvim-linux-x86_64.appimage
+  chmod u+x nvim-linux-x86_64.appimage
+  mv nvim-linux-x86_64.appimage "$HOME/.local/bin/nvim"
 }
 
 install_helix_release() {
