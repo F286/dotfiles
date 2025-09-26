@@ -1,0 +1,22 @@
+{{- $t := includeTemplate "themes/tokyonight_moon.json.tmpl" . | fromJson -}}
+foreground               {{ $t.foreground }}
+background               {{ $t.background }}
+cursor                   {{ $t.cursor_bg }}
+selection_background     {{ $t.selection_bg }}
+color0                   {{ index $t.ansi 0 }}
+color1                   {{ index $t.ansi 1 }}
+color2                   {{ index $t.ansi 2 }}
+color3                   {{ index $t.ansi 3 }}
+color4                   {{ index $t.ansi 4 }}
+color5                   {{ index $t.ansi 5 }}
+color6                   {{ index $t.ansi 6 }}
+color7                   {{ index $t.ansi 7 }}
+color8                   {{ index $t.brights 0 }}
+color9                   {{ index $t.brights 1 }}
+color10                  {{ index $t.brights 2 }}
+color11                  {{ index $t.brights 3 }}
+color12                  {{ index $t.brights 4 }}
+color13                  {{ index $t.brights 5 }}
+color14                  {{ index $t.brights 6 }}
+color15                  {{ index $t.brights 7 }}
+

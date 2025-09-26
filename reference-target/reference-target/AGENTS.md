@@ -1,0 +1,2 @@
+- Use a simple and elegant approach that takes advantage of built-in existing functionality.
+- Keep it as simple as possible.

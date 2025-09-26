@@ -1,0 +1,99 @@
+#!/usr/bin/env bash
+# st-zoekt — Interactive search over a local Zoekt index with nice ripgrep-style coloring.
+# Usage: st-zoekt [--code] [PATH]
+#   --code   open matches in VS Code; default opens in nvim.
+#   PATH     directory or file within the tree; defaults to $PWD.
+# Requires: zoekt, fzf, ripgrep (for coloring), bat, nvim (or VS Code if --code).
+set -euo pipefail
+
+# Build args as an array so quoting stays correct.
+ADDITIONAL_ARGS=(--bind "enter:become(cd '{root}' && nvim +{2} {1})")
+
+if [[ "${1:-}" == "--code" ]]; then
+  # Open at line without becoming; keep fzf running. Work relative to repo root.
+  ADDITIONAL_ARGS=(
+    --bind 'enter:execute-silent(code -r --goto {1}:{2}:{3})+abort' \
+  )
+  shift
+fi
+
+root="${1:-$PWD}"
+if [[ -f "$root" ]]; then root="$(dirname "$root")"; fi
+root="$(cd "$root" >/dev/null 2>&1 && pwd -P)"
+index_dir="$root/.zoekt"
+
+command -v zoekt >/dev/null 2>&1 || {
+  echo "error: zoekt not found in PATH" >&2
+  exit 1
+}
+command -v fzf >/dev/null 2>&1 || {
+  echo "error: fzf not found in PATH" >&2
+  exit 1
+}
+command -v rg >/dev/null 2>&1 || {
+  echo "error: ripgrep (rg) not found in PATH" >&2
+  exit 1
+}
+command -v bat >/dev/null 2>&1 || {
+  echo "error: bat not found in PATH" >&2
+  exit 1
+}
+
+if [[ ! -d "$index_dir" ]]; then
+  echo "error: no Zoekt index found at: $index_dir" >&2
+  echo "hint: run 'si \"${root}\"' first to build the index." >&2
+  exit 1
+fi
+
+# We output four colon-delimited fields for fzf:
+#   1: raw path
+#   2: raw line number
+#   3: raw column (falls back to 1 if unavailable)
+#   4: pretty display (colored "path:line[:col]: text" with rg match highlights)
+#
+# Notes:
+# - We keep ripgrep in the pipeline for match highlighting.
+# - Then awk rebuilds a pretty, colored prefix for path/line/(col), while preserving rg's highlights in the text.
+# - fzf shows only field 4 (with-nth=4..), but uses {1}, {2}, {3} (raw) in bindings and preview.
+
+reload_cmd="zoekt -index_dir '$index_dir' -- {q} \
+  | rg --passthru --smart-case --color=always -- {q} \
+  | awk 'BEGIN{
+      FS=\":\"; OFS=\":\";
+      mag=\"\\033[38;2;106;153;85m\";   # filename color
+      gre=\"\\033[32m\";                # line/col color
+      rst=\"\\033[0m\";
+    }
+    {
+      p=\$1; l=\$2; rest=\$0;
+      gsub(/\033\[[0-9;]*m/, \"\", p);
+
+      if (\$3 ~ /^[0-9]+$/) {
+        c=\$3;
+        sub(/^[^:]*:[^:]*:[^:]*:/, \"\", rest);
+        pretty = mag p rst \" \" gre l rst \" \" gre c rst \" \" rest;
+      } else {
+        c=1;
+        sub(/^[^:]*:[^:]*:/, \"\", rest);
+        pretty = mag p rst \"   \" rst \"   \" rest;
+      }
+      print p, l, c, pretty;
+    }'"
+
+# Replace {root} placeholders in additional args
+for i in "${!ADDITIONAL_ARGS[@]}"; do
+  ADDITIONAL_ARGS[i]="${ADDITIONAL_ARGS[i]//\{root\}/$root}"
+done
+
+exec fzf \
+  --ansi \
+  --tiebreak=index \
+  --disabled \
+  --height=100% \
+  --delimiter : \
+  --with-nth=4.. \
+  --bind "start:reload:${reload_cmd} || true" \
+  --bind "change:reload:${reload_cmd} || true" \
+  --preview "cd '${root}' && bat --style=numbers --color=always {2} {1}" \
+  --preview-window 'bottom,30%,+{2}/2' \
+  "${ADDITIONAL_ARGS[@]}"

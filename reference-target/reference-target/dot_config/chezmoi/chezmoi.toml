@@ -1,0 +1,2 @@
+# Use symlink mode so files are linked rather than copied
+mode = "symlink"

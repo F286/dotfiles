@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+# si — Simple Zoekt indexer
+
+set -euo pipefail
+
+# Get CPU count for parallelism
+if command -v sysctl >/dev/null 2>&1; then
+  cpu_count=$(sysctl -n hw.ncpu 2>/dev/null || echo 4)
+elif command -v nproc >/dev/null 2>&1; then
+  cpu_count=$(nproc 2>/dev/null || echo 4)
+else
+  cpu_count=4
+fi
+
+IGNORES=".git,.svn,.hg,.idea,.vs,node_modules,out,build,dist,tmp,temp,cache,.cache,__pycache__,.mypy_cache,.pytest_cache,.tox,vendor,CMakeFiles,.gradle,.mvn,pkg,bin,.terraform,.jekyll-cache,_site"
+
+zoekt-index \
+  -index .zoekt \
+  -parallelism "$cpu_count" \
+  -ignore_dirs="$IGNORES" \
+  .

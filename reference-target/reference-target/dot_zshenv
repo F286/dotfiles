@@ -1,0 +1,4 @@
+# shellcheck shell=bash
+# ~/.zshenv — keep minimal (env only)
+: "${XDG_CONFIG_HOME:="$HOME/.config"}"
+export XDG_CONFIG_HOME
