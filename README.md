@@ -8,7 +8,7 @@ Personal dotfiles managed with [Stow](https://www.gnu.org/software/stow/) for ea
 
 ```sh
 # Clone and navigate
-git clone https://github.com/skyde/dotfiles.git ~/dotfiles
+git clone https://github.com/F286/dotfiles.git ~/dotfiles
 cd ~/dotfiles
 ```
 
