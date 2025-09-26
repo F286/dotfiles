@@ -1,0 +1,6 @@
+{{- if eq .chezmoi.os "windows" -}}
+$ErrorActionPreference = "Stop"
+# JetBrains Mono Nerd Font is now included directly in the repo
+# Fonts are installed via chezmoi to the user's local font directory
+Write-Host "JetBrains Mono Nerd Font fonts are managed directly by chezmoi"
+{{- end -}}

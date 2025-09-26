@@ -1,0 +1,96 @@
+#!/usr/bin/env bash
+# st-rg — Interactive ripgrep search with the same UI polish as st-zoekt.
+# Usage: st-rg [--code] [PATH]
+#   --code   open matches in VS Code; default opens in nvim.
+#   PATH     directory or file to use as the search root; defaults to $PWD.
+# Requires: ripgrep (rg), fzf, bat, nvim (or VS Code if --code).
+set -euo pipefail
+
+# Build args as an array so quoting stays correct.
+ADDITIONAL_ARGS=(--bind "enter:become(cd '{root}' && nvim +{2} {1})")
+
+if [[ "${1:-}" == "--code" ]]; then
+  # Open at line without becoming; keep fzf running. Work relative to search root.
+  ADDITIONAL_ARGS=(
+    --bind 'enter:execute-silent(code -r --goto {1}:{2}:{3})+abort' \
+  )
+  shift
+fi
+
+target_input="${1:-$PWD}"
+target="$target_input"
+if [[ -f "$target" ]]; then
+  target="$(dirname "$target")"
+fi
+if ! root="$(cd "$target" >/dev/null 2>&1 && pwd -P)"; then
+  echo "error: search root not found: $target_input" >&2
+  exit 1
+fi
+
+command -v rg >/dev/null 2>&1 || {
+  echo "error: ripgrep (rg) not found in PATH" >&2
+  exit 1
+}
+command -v fzf >/dev/null 2>&1 || {
+  echo "error: fzf not found in PATH" >&2
+  exit 1
+}
+command -v bat >/dev/null 2>&1 || {
+  echo "error: bat not found in PATH" >&2
+  exit 1
+}
+
+# We output four colon-delimited fields for fzf:
+#   1: raw path
+#   2: raw line number
+#   3: raw column (falls back to 1 if unavailable)
+#   4: pretty display (colored "path:line[:col]: text" with rg match highlights)
+# - fzf shows only field 4 (with-nth=4..), but uses {1}, {2}, {3} in bindings and previews.
+reload_cmd="cd '$root' && rg --line-number --column --with-filename --no-heading --color=always --smart-case -- {q} \
+  | awk 'BEGIN{
+      FS=\":\"; OFS=\":\";
+      mag=\"\\033[38;2;106;153;85m\";   # filename color
+      gre=\"\\033[32m\";                # line/col color
+      rst=\"\\033[0m\";
+    }
+    function strip_ansi(s) {
+      gsub(/\\033\\[[0-9;]*[A-Za-z]/, \"\", s);
+      return s;
+    }
+    {
+      raw=\$0;
+      p=strip_ansi(\$1);
+      l=strip_ansi(\$2);
+      rest=raw;
+      c=strip_ansi(\$3);
+      if (c ~ /^[0-9]+$/) {
+        if (match(rest, /^[^:]*:[^:]*:[^:]*:/)) {
+          rest = substr(rest, RLENGTH + 1);
+        }
+        pretty = mag p rst \" \" gre rst \" \" gre rst \" \" rest;
+      } else {
+        c=1;
+        if (match(rest, /^[^:]*:[^:]*:/)) {
+          rest = substr(rest, RLENGTH + 1);
+        }
+        pretty = mag p rst \"   \" rst \"   \" rest;
+      }
+      print p, l, c, pretty;
+    }'"
+
+for i in "${!ADDITIONAL_ARGS[@]}"; do
+  ADDITIONAL_ARGS[i]="${ADDITIONAL_ARGS[i]//\{root\}/$root}"
+done
+
+exec fzf \
+  --ansi \
+  --tiebreak=index \
+  --disabled \
+  --height=100% \
+  --delimiter : \
+  --with-nth=4.. \
+  --bind "start:reload:${reload_cmd} || true" \
+  --bind "change:reload:${reload_cmd} || true" \
+  --preview "cd '${root}' && bat --style=numbers --color=always {2} {1}" \
+  --preview-window 'bottom,30%,+{2}/2' \
+  "${ADDITIONAL_ARGS[@]}"

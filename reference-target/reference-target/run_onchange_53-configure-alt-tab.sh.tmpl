@@ -1,0 +1,20 @@
+{{- /* chezmoi template: run on change; safe on repeated runs */ -}}
+#!/usr/bin/env bash
+set -euo pipefail
+
+if [ "{{ .chezmoi.os }}" != "darwin" ]; then
+  exit 0
+fi
+
+# Ensure macOS "defaults" command is available
+if ! command -v defaults >/dev/null 2>&1; then
+  exit 0
+fi
+
+# Enable Vim-style navigation and use Command as the hold shortcut
+defaults write com.lwouis.alt-tab-macos vimKeysEnabled -bool true
+for key in holdShortcut holdShortcut2 holdShortcut3; do
+  defaults write com.lwouis.alt-tab-macos "$key" -string "⌘"
+done
+
+exit 0

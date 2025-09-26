@@ -1,0 +1,103 @@
+{{- /* chezmoi template: run on change; safe on repeated runs */ -}}
+#!/usr/bin/env bash
+set -euo pipefail
+
+OS="{{ .chezmoi.os }}"
+
+has() { command -v "$1" >/dev/null 2>&1; }
+
+already() {
+  echo "wezterm already installed: $($1 2>/dev/null || echo 'detected')"
+}
+
+if has wezterm; then
+  already "wezterm -V"
+  exit 0
+fi
+
+case "$OS" in
+  darwin)
+    if has brew; then
+      if brew list --cask wezterm >/dev/null 2>&1; then
+        already "brew list --cask wezterm"
+      else
+        echo "Installing WezTerm with Homebrew Cask…"
+        brew install --cask wezterm   # official cask name
+      fi
+    else
+      echo "Homebrew not found; skipping WezTerm install on macOS."
+    fi
+    ;;
+
+  linux)
+    if has apt-get; then
+      # Use official APT repo if needed (adds once), then install
+      if ! dpkg -s wezterm >/dev/null 2>&1; then
+        if ! [ -f /etc/apt/sources.list.d/wezterm.list ]; then
+          echo "Configuring official WezTerm APT repo…"
+          sudo mkdir -p /usr/share/keyrings
+          curl -fsSL https://apt.fury.io/wez/gpg.key \
+            | sudo gpg --yes --dearmor -o /usr/share/keyrings/wezterm-fury.gpg
+          echo 'deb [signed-by=/usr/share/keyrings/wezterm-fury.gpg] https://apt.fury.io/wez/ * *' \
+            | sudo tee /etc/apt/sources.list.d/wezterm.list >/dev/null
+          sudo chmod 644 /usr/share/keyrings/wezterm-fury.gpg
+        fi
+        echo "Installing WezTerm via apt…"
+        sudo apt-get update -qq
+        sudo apt-get install -y wezterm || {
+          echo "APT package not available; trying Flatpak if present…"
+          if has flatpak; then
+            flatpak install -y flathub org.wezfurlong.wezterm || true
+          fi
+        }
+      else
+        already "dpkg -s wezterm"
+      fi
+
+    elif has dnf; then
+      # Fedora/RHEL; prefer official Copr if base repo lacks it
+      if rpm -q wezterm >/dev/null 2>&1; then
+        already "rpm -q wezterm"
+      else
+        echo "Installing WezTerm on rpm-based distro…"
+        sudo dnf -y install wezterm || {
+          sudo dnf -y copr enable wezfurlong/wezterm-nightly || true
+          sudo dnf -y install wezterm || sudo dnf -y install wezterm-nightly || true
+        }
+      fi
+
+    elif has pacman; then
+      if pacman -Qi wezterm >/dev/null 2>&1; then
+        already "pacman -Qi wezterm"
+      else
+        echo "Installing WezTerm via pacman…"
+        sudo pacman -S --noconfirm wezterm || {
+          echo "Package not found; consider AUR or Flatpak (org.wezfurlong.wezterm)."
+        }
+      fi
+
+    else
+      echo "Unknown Linux distro; attempting Flatpak if available…"
+      if has flatpak; then
+        flatpak install -y flathub org.wezfurlong.wezterm || true
+      fi
+    fi
+    ;;
+
+  windows)
+    # If chezmoi runs in MSYS/Git-Bash, call PowerShell/winget for install.
+    if has powershell.exe; then
+      echo "Ensuring WezTerm via winget…"
+      powershell.exe -NoProfile -ExecutionPolicy Bypass -Command \
+        "if (-not (winget list --id wez.wezterm -e | Select-String wezterm)) { winget install --id wez.wezterm -e --accept-package-agreements --accept-source-agreements }"
+    else
+      echo "powershell.exe not found; skipping Windows install."
+    fi
+    ;;
+
+  *)
+    echo "Unsupported OS: $OS"
+    ;;
+esac
+
+exit 0

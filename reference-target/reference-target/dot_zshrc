@@ -1,0 +1,9 @@
+# Managed by chezmoi — minimal zshrc
+
+# Make editor env available early
+[ -f "$HOME/.config/shell/00-editor.sh" ] && . "$HOME/.config/shell/00-editor.sh"
+
+# Delegate to personal config if present (idempotent)
+if [ -r "${XDG_CONFIG_HOME:-$HOME/.config}/zsh/personal.zsh" ]; then
+  . "${XDG_CONFIG_HOME:-$HOME/.config}/zsh/personal.zsh"
+fi
