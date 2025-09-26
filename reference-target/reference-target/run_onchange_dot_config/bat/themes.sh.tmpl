@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+# Rebuild bat cache when themes change
+
+set -euo pipefail
+
+BAT_BIN=""
+if command -v bat >/dev/null 2>&1; then
+  BAT_BIN="bat"
+elif command -v batcat >/dev/null 2>&1; then
+  BAT_BIN="batcat"
+fi
+
+if [ -n "$BAT_BIN" ]; then
+  "$BAT_BIN" cache --build >/dev/null
+fi

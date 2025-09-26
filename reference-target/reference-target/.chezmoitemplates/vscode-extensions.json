@@ -1,0 +1,12 @@
+{
+  "recommendations": [
+    "TomPollak.lazygit-vscode",
+    "vscodevim.vim",
+    "qufiwefefwoyn.kanagawa",
+    "formulahendry.auto-close-tag",
+    "RodrigoScola.vscode-textobjects",
+    "TomRijndorp.find-it-faster",
+    "enkia.tokyo-night"
+  ],
+  "unwantedRecommendations": []
+}

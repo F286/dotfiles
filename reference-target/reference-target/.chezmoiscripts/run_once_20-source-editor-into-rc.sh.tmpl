@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+insert_once () {
+  local file="$1"
+  local line="$2"
+  mkdir -p "$(dirname "$file")"
+  touch "$file"
+  # Add the line only if it's not already there (exact match).
+  grep -Fqx "$line" "$file" || printf '\n%s\n' "$line" >> "$file"
+}
+
+LINE='[ -f "{{ .chezmoi.homeDir }}/.config/shell/00-editor.sh" ] && . "{{ .chezmoi.homeDir }}/.config/shell/00-editor.sh"'
+
+insert_once "{{ .chezmoi.homeDir }}/.bashrc"  "$LINE"
+insert_once "{{ .chezmoi.homeDir }}/.zshrc"   "$LINE"
+# Optional but handy on macOS login shells:
+insert_once "{{ .chezmoi.homeDir }}/.zprofile" "$LINE"

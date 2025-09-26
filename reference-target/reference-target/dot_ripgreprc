@@ -1,0 +1,9 @@
+
+--hidden
+--glob=!.git
+--colors=path:fg:111
+--colors=line:fg:117
+--colors=column:fg:150
+--colors=match:fg:215
+--colors=match:style:bold
+

@@ -1,0 +1,294 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Optional: highlight the live query text in the preview (1=on, 0=off)
+HIGHLIGHT_QUERY="${HIGHLIGHT_QUERY:-1}"
+
+# --- smart path shortening (display-only) -----------------------------------
+# SG_MAX_LABEL controls the visible width of the left item label.
+# Default: half the terminal width (roughly the non-preview area).
+: "${SG_MAX_LABEL:=$(( ${COLUMNS:-80} / 2 ))}"
+: "${SG_ELLIPSIS:=…}"   # override with SG_ELLIPSIS=... if your font lacks '…'
+TAB=$'\t'
+
+# Accent color for matched text in ripgrep output (256-color index)
+# Use a LazyVim/TokyoNight-like blue (#7aa2f7 ≈ 111)
+: "${SG_MATCH_COLOR:=111}"
+
+# Optional initial query from args
+# shellcheck disable=SC2034
+QUERY="${*:-}"
+
+# Toggle states (Alt-keys modify these)
+FIXED=1        # Alt-r: fixed(1) <-> regex(0)
+WORD=0         # Alt-w: word boundary match
+SHOW_HIDDEN=0  # Alt-.: include hidden files
+NO_IGNORE=0    # Alt-i: include ignored files (no-ignore)
+CASE_MODE=smart  # Alt-c: cycle smart -> sensitive -> ignore
+
+# Match original behavior: search once query is non-empty
+MIN_CHARS=3
+
+# Hard requirements
+for cmd in rg fzf; do
+  if ! command -v "$cmd" >/dev/null 2>&1; then
+    echo "$cmd not found on PATH." >&2
+    exit 0
+  fi
+done
+
+# Determine search root - prefer git root, else project markers, else CWD
+if ROOT="$(git -C "$PWD" rev-parse --show-toplevel 2>/dev/null)"; then
+  :
+else
+  find_project_root() {
+    local d="$PWD"
+    local markers=(
+      package.json pnpm-workspace.yaml yarn.lock package-lock.json
+      go.mod Cargo.toml pyproject.toml requirements.txt
+      composer.json Makefile CMakeLists.txt
+    )
+    while [ "$d" != "/" ]; do
+      for m in "${markers[@]}"; do
+        [ -e "$d/$m" ] && printf '%s' "$d" && return 0
+      done
+      d="$(dirname "$d")"
+    done
+    return 1
+  }
+  ROOT="${PWD}"
+  if r="$(find_project_root)"; then ROOT="$r"; fi
+fi
+cd "$ROOT"
+
+# Build the ripgrep command from current toggles
+build_rg() {
+  # Keep output style the same but reduce work on huge lines
+  RG=(rg --line-number --column --no-heading \
+        --no-messages --max-columns=300 --max-columns-preview \
+        --color=never)
+  # hidden + ignore toggles (override user config if needed)
+  if [ "$SHOW_HIDDEN" -eq 1 ]; then
+    RG+=(--hidden)
+  else
+    RG+=(--no-hidden)
+  fi
+  RG+=(--glob '!.git')
+  [ "$NO_IGNORE" -eq 1 ] && RG+=(-uu)
+  # regex vs fixed (default: fixed strings)
+  [ "$FIXED" -eq 1 ] && RG+=(-F)
+  # word match
+  [ "$WORD" -eq 1 ] && RG+=(-w)
+  # case mode
+  case "$CASE_MODE" in
+    smart) RG+=(--smart-case);;
+    sensitive) RG+=(--case-sensitive);;
+    ignore) RG+=(--ignore-case);;
+  esac
+}
+
+# Preview command
+# - centers around the hit with context
+# - highlights the matched line (and optionally the query text)
+# - prefers bat, falls back to sed + nl
+# IMPORTANT: leave {1},{2},{q} unquoted; fzf provides safe quoting.
+# shellcheck disable=SC2016
+PREVIEW_CMD='
+  [ -z {2} ] && exit 0
+  O={2}
+  F=${O%%:*}
+  L=${O#*:}; L=${L%%:*}; [ -z "$L" ] && L=1
+  S=$((L>15 ? L-15 : 1))
+  E=$((L+40))
+
+  # Relative line number within the preview block
+  R=$((L-S+1))
+
+  _want_q_hl='"${HIGHLIGHT_QUERY}"'
+
+  if command -v bat >/dev/null 2>&1; then
+    if [ -n {q} ] && [ "$_want_q_hl" = "1" ]; then
+      bat --paging=never --style=plain --color=always \
+          --line-range ${S}:${E} -- "$F" \
+        | { rg --passthru --color=always --colors "match:fg:'"${SG_MATCH_COLOR}"'" -e {q} || true; } \
+        | nl -ba -w1 -s"  " \
+        | awk -v rel="$R" '"'"'NR==rel{ bg="\033[48;2;47;51;77m"; off="\033[49m"; if (match($0, /^[[:space:]]*[0-9]+  /)) { p=substr($0,1,RLENGTH); c=substr($0,RLENGTH+1); } else { p=""; c=$0; } c=bg c; gsub(/\033\[0m/, "\033[0m" bg, c); gsub(/\033\[49m/, bg, c); printf "%s%s%s\n", p, c, off; next }1'"'"'
+    else
+      bat --paging=never --style=plain --color=always \
+          --line-range ${S}:${E} -- "$F" \
+        | nl -ba -w1 -s"  " \
+        | awk -v rel="$R" '"'"'NR==rel{ bg="\033[48;2;47;51;77m"; off="\033[49m"; if (match($0, /^[[:space:]]*[0-9]+  /)) { p=substr($0,1,RLENGTH); c=substr($0,RLENGTH+1); } else { p=""; c=$0; } c=bg c; gsub(/\033\[0m/, "\033[0m" bg, c); gsub(/\033\[49m/, bg, c); printf "%s%s%s\n", p, c, off; next }1'"'"'
+    fi
+  elif command -v batcat >/dev/null 2>&1; then
+    if [ -n {q} ] && [ "$_want_q_hl" = "1" ]; then
+      batcat --paging=never --style=plain --color=always \
+             --line-range ${S}:${E} -- "$F" \
+        | { rg --passthru --color=always --colors "match:fg:'"${SG_MATCH_COLOR}"'" -e {q} || true; } \
+        | nl -ba -w1 -s"  " \
+        | awk -v rel="$R" '"'"'NR==rel{ bg="\033[48;2;47;51;77m"; off="\033[49m"; if (match($0, /^[[:space:]]*[0-9]+  /)) { p=substr($0,1,RLENGTH); c=substr($0,RLENGTH+1); } else { p=""; c=$0; } c=bg c; gsub(/\033\[0m/, "\033[0m" bg, c); gsub(/\033\[49m/, bg, c); printf "%s%s%s\n", p, c, off; next }1'"'"'
+    else
+      batcat --paging=never --style=plain --color=always \
+             --line-range ${S}:${E} -- "$F" \
+        | nl -ba -w1 -s"  " \
+        | awk -v rel="$R" '"'"'NR==rel{ bg="\033[48;2;47;51;77m"; off="\033[49m"; if (match($0, /^[[:space:]]*[0-9]+  /)) { p=substr($0,1,RLENGTH); c=substr($0,RLENGTH+1); } else { p=""; c=$0; } c=bg c; gsub(/\033\[0m/, "\033[0m" bg, c); gsub(/\033\[49m/, bg, c); printf "%s%s%s\n", p, c, off; next }1'"'"'
+    fi
+  else
+    # Portable fallback: use input redirection instead of "sed --"
+    if [ -n {q} ] && [ "$_want_q_hl" = "1" ]; then
+      sed -n "${S},${E}p" < "$F" | nl -ba -w1 -s"  " \
+        | { rg --passthru --color=always --colors "match:fg:'"${SG_MATCH_COLOR}"'" -e {q} || true; } \
+        | awk -v rel="$R" '"'"'NR==rel{ bg="\033[48;2;47;51;77m"; off="\033[49m"; if (match($0, /^[[:space:]]*[0-9]+  /)) { p=substr($0,1,RLENGTH); c=substr($0,RLENGTH+1); } else { p=""; c=$0; } c=bg c; gsub(/\033\[0m/, "\033[0m" bg, c); gsub(/\033\[49m/, bg, c); printf "%s%s%s\n", p, c, off; next }1'"'"'
+    else
+      sed -n "${S},${E}p" < "$F" | nl -ba -w1 -s"  " \
+        | awk -v rel="$R" '"'"'NR==rel{ bg="\033[48;2;47;51;77m"; off="\033[49m"; if (match($0, /^[[:space:]]*[0-9]+  /)) { p=substr($0,1,RLENGTH); c=substr($0,RLENGTH+1); } else { p=""; c=$0; } c=bg c; gsub(/\033\[0m/, "\033[0m" bg, c); gsub(/\033\[49m/, bg, c); printf "%s%s%s\n", p, c, off; next }1'"'"'
+    fi
+  fi
+'
+
+HIST_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/fzf-history"
+mkdir -p "$HIST_DIR"
+HIST_FILE="$HIST_DIR/sg"
+
+# Run fzf in a loop to handle toggle keys, preserving query
+while true; do
+  build_rg
+  # fzf reload snippet - only search when query is non-empty
+  # IMPORTANT: leave {q} unquoted; fzf provides safe quoting.
+  # shellcheck disable=SC2034
+  RELOAD_CMD='
+    QLEN=$(printf %s {q} | wc -c | tr -d "\n ")
+    if [ "${QLEN:-0}" -ge '"$MIN_CHARS"' ]; then
+      # Immediately clear stale results and show a searching placeholder
+      printf "::: \033[2mSearching…\033[0m\n"
+      '"${RG[*]}"' -- {q} \
+        | awk -v max='"$SG_MAX_LABEL"' -v E='"$SG_ELLIPSIS"' -F: '\''
+            function shorten(path, max, E,    p, base, dir, n, i, seg, out, cand, head, name, ext, avail, left, right) {
+              if (length(path) <= max) { return path }
+              # split into dir + base
+              p = 0
+              for (i = length(path); i >= 1; i--) { if (substr(path,i,1) == "/") { p = i; break } }
+              if (p == 0) {
+                left = int((max - 1) / 2)
+                right = max - 1 - left
+                return substr(path,1,left) E substr(path,length(path)-right+1)
+              }
+              dir = substr(path,1,p-1)
+              base = substr(path,p+1)
+              # build from the right
+              n = split(dir, arr, "/")
+              out = base
+              for (i = n; i >= 1; i--) {
+                seg = arr[i]
+                if (seg == "") continue
+                cand = seg "/" out
+                if (length(cand) + 2 <= max) { out = cand } else { break }
+              }
+              if (i >= 1) { out = E "/" out }
+              if (length(out) > max) {
+                # shrink basename in the middle
+                p = 0
+                for (i = length(out); i >= 1; i--) { if (substr(out,i,1) == "/") { p = i; break } }
+                head = (p>0 ? substr(out,1,p-1) : "")
+                name = (p>0 ? substr(out,p+1) : out)
+                ext = ""
+                for (i = length(name); i >= 1; i--) { if (substr(name,i,1) == ".") { ext = substr(name,i); name = substr(name,1,i-1); break } }
+                avail = max - length(head) - 1
+                if (avail < 5) { return substr(out, length(out)-max+1) }
+                left = int((avail - length(ext) - 1) / 2)
+                right = avail - length(ext) - 1 - left
+                if (left < 1) left = 1
+                if (right < 1) right = 1
+                out = head "/" substr(name,1,left) E substr(name, length(name)-right+1) ext
+              }
+              return out
+            }
+            {
+              file=$1
+              line=$2
+              col=$3
+              # strip any ANSI color sequences that rg may add to path (user rc)
+              gsub(/\033\[[0-9;]*m/, "", file)
+              label=shorten(file, max, E)
+              rest=$0
+              sub(/^[^:]*:/, "", rest)
+              sub(/^[^:]*:/, "", rest)
+              sub(/^[^:]*:/, "", rest)
+              pathpos = file ":" line ":" col
+              # Colors
+              cpath="\033[38;2;86;95;137m"    # #565f89 for path
+              cfile="\033[38;2;192;202;245m"  # #c0caf5 for filename
+              cres="\033[0m"
+              # split label into head/base
+              p = 0
+              for (i = length(label); i >= 1; i--) { if (substr(label,i,1) == "/") { p = i; break } }
+              head = (p==0 ? "" : substr(label, 1, p))
+              base = (p==0 ? label : substr(label, p+1))
+              # Only color path grey and filename white-ish; no query highlight here
+              labelc = cpath head cres cfile base cres
+              print labelc "\t" pathpos "\t" rest
+            }
+        '\'' \
+        | awk '\''BEGIN{n=0} {n=1; print} END{if(n==0) printf "::: \033[2mNo matches\033[0m\n"}'\''
+    else
+      printf "::: \033[2mType to search\033[0m\n"
+    fi
+  '
+
+  # shellcheck disable=SC2054
+  FZF_ARGS=(
+    --ansi
+    --multi
+    --phony # do not filter locally, we reload from rg
+    --bind "start:reload:${RELOAD_CMD}"
+    --bind "change:reload:${RELOAD_CMD}"
+    # LazyVim/TokyoNight-like prompt icon (requires Nerd Font; falls back harmlessly)
+    --prompt='   '
+    --height=100%
+    --margin=1,2           # float-like feel
+    --header=''            # keep clean like LazyVim floating picker
+    --border --layout=reverse
+    --info=inline # shows 1/65 on the right
+    --delimiter=$'\t' --with-nth=1,3 --nth=2
+    --preview="${PREVIEW_CMD}"
+    --preview-window='right,60%,border,wrap'
+    --preview-label=' Preview '
+    --bind 'alt-p:toggle-preview'
+    --bind 'ctrl-d:preview-half-page-down,ctrl-u:preview-half-page-up'
+    --bind 'alt-a:toggle-all'
+    # IMPORTANT: leave placeholders unquoted here as well
+    --bind 'enter:execute-silent([ -n {2} ] && code -r --goto $(printf %s {2} | cut -d: -f1-3))+abort'
+    --bind 'ctrl-q:execute-silent(printf %s\n {+2} | while IFS= read -r O; do code -r --goto "$(printf %s "$O" | cut -d: -f1-3)"; done)+abort'
+    # TokyoNight Moon palette (close to LazyVim)
+    --color='fg:#c0caf5,bg:#1e2030,fg+:#c0caf5,bg+:#2f334d,hl:#ff9e64,hl+:#ff9e64'
+    --color='border:#3b4261,gutter:#1e2030'
+    --color='spinner:#bb9af7,header:#565f89,pointer:#ff9e64,marker:#9ece6a'
+    --color='prompt:#7aa2f7,query:#c0caf5,info:#565f89'
+    --border-label "Search Grep - $(basename "$ROOT")"
+    --history="$HIST_FILE"
+    --print-query
+  )
+
+  out=$(FZF_DEFAULT_OPTS="${FZF_DEFAULT_OPTS-}" fzf \
+    --expect=alt-r,alt-w,alt-.,alt-i,alt-c \
+    "${FZF_ARGS[@]}" \
+    --query "$QUERY" || true)
+
+  key=$(printf '%s\n' "$out" | head -n1)
+  QUERY=$(printf '%s\n' "$out" | sed -n '2p')
+  case "$key" in
+    alt-r) FIXED=$((1-FIXED));;  # regex<->fixed strings
+    alt-w) WORD=$((1-WORD));;
+    alt-.) SHOW_HIDDEN=$((1-SHOW_HIDDEN));;
+    alt-i) NO_IGNORE=$((1-NO_IGNORE));;
+    alt-c)
+      case "$CASE_MODE" in
+        smart) CASE_MODE=sensitive;;
+        sensitive) CASE_MODE=ignore;;
+        *) CASE_MODE=smart;;
+      esac
+      ;;
+    *) break;;
+  esac
+done
+
+exit 0

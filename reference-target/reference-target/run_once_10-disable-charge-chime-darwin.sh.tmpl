@@ -1,0 +1,13 @@
+{{- if eq .chezmoi.os "darwin" -}}
+#!/usr/bin/env bash
+# Disable Mac's charging chime (per-user).
+# Runs once via chezmoi. Safe to re-run: it's idempotent.
+
+set -euo pipefail
+
+/usr/bin/defaults write com.apple.PowerChime ChimeOnNoHardware -bool true
+
+# Apply immediately (PowerChime is the tiny agent that plays the sound)
+# /usr/bin/killall exits non-zero if process not found; ignore that.
+/usr/bin/killall PowerChime >/dev/null 2>&1 || true
+{{- end -}}

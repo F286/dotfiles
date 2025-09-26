@@ -1,0 +1,9 @@
+# Global ignore patterns for ripgrep.
+# Mirrors the most common build/test artifacts in Chromium so fzf (via st-rg)
+# and other rg-based tools skip them by default.
+
+# Build outputs
+out/
+
+# Cache
+.cache/

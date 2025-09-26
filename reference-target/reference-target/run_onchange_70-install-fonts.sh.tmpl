@@ -1,0 +1,44 @@
+{{- if or (eq .chezmoi.os "darwin") (eq .chezmoi.os "linux") -}}
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Install JetBrains Mono Nerd Fonts from the central fonts directory
+echo "Installing JetBrains Mono Nerd Fonts..."
+
+{{- if eq .chezmoi.os "darwin" }}
+# macOS: Install to user's Fonts directory
+FONT_DIR="$HOME/Library/Fonts"
+{{- else if eq .chezmoi.os "linux" }}
+# Linux: Install to user's fonts directory  
+FONT_DIR="$HOME/.local/share/fonts"
+{{- end }}
+
+mkdir -p "$FONT_DIR"
+
+# Copy fonts from chezmoi source to system location
+SOURCE_FONT_DIR="{{ .chezmoi.sourceDir }}/fonts"
+if [ -d "$SOURCE_FONT_DIR" ]; then
+    for font in "$SOURCE_FONT_DIR"/*.ttf; do
+        if [ -f "$font" ]; then
+            cp "$font" "$FONT_DIR/"
+            echo "✓ Installed $(basename "$font")"
+        fi
+    done
+else
+    echo "⚠️  Font source directory not found: $SOURCE_FONT_DIR"
+    exit 1
+fi
+
+{{- if eq .chezmoi.os "linux" }}
+# Refresh font cache on Linux
+if command -v fc-cache >/dev/null 2>&1; then
+    echo "Refreshing font cache..."
+    fc-cache -fv "$FONT_DIR" >/dev/null 2>&1
+    echo "✓ Font cache refreshed!"
+else
+    echo "⚠️  fc-cache not found, fonts may not be immediately available"
+fi
+{{- end }}
+
+echo "✅ Font installation complete!"
+{{- end -}}

@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# FZF Ripgrep (matches provided reference)
+exec fzf \
+  --reverse \
+  --ansi \
+  --style=minimal \
+  --tiebreak=index \
+  --info inline \
+  --height=100% \
+  --no-cycle \
+  --prompt='   ' \
+  --bind "start:reload:rg --column --color=always --smart-case {q}||true" \
+  --bind "change:reload:rg --column --color=always --smart-case {q}||true" \
+  --bind 'enter:execute-silent(code -r --goto {1}:{2}:{3})+abort' \
+  --bind 'ctrl-q:execute-silent(printf %s\n {+} | cut -d: -f1-3 | while IFS= read -r S; do code -r --goto "$S"; done)+abort' \
+  --delimiter : \
+  --preview 'bat --paging=never --style=numbers --color=always --highlight-line {2} -- {1}' \
+  --preview-window 'bottom,30%,+{2}/2'

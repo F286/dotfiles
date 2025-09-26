@@ -1,0 +1,842 @@
+// Place your key bindings in this file to override the defaults
+[
+  // Disable line move shortcuts
+  { "key": "alt+down", "command": "-editor.action.moveLinesDownAction" },
+  { "key": "alt+up", "command": "-editor.action.moveLinesUpAction" },
+
+  // ----- Word navigation on ⌘ + ← / → -----
+  // Remove defaults (line start/end) that would conflict:
+  { "key": "cmd+left",  "command": "-cursorHome", "when": "editorTextFocus" },
+  { "key": "cmd+right", "command": "-cursorEnd",  "when": "editorTextFocus" },
+
+  // New behavior: jump by word
+  { "key": "cmd+left",  "command": "cursorWordStartLeft", "when": "editorTextFocus" },
+  { "key": "cmd+right", "command": "cursorWordEndRight",  "when": "editorTextFocus" },
+
+  // ----- Word deletion on ⌘ + Backspace / Delete -----
+  // Remove defaults (delete to line start/end):
+  { "key": "cmd+backspace", "command": "-deleteAllLeft",  "when": "editorTextFocus && !editorReadonly" },
+  { "key": "cmd+delete",    "command": "-deleteAllRight", "when": "editorTextFocus && !editorReadonly" },
+
+  // New behavior: delete one word left/right
+  { "key": "cmd+backspace", "command": "deleteWordLeft",  "when": "editorTextFocus && !editorReadonly" },
+  { "key": "cmd+delete",    "command": "deleteWordRight", "when": "editorTextFocus && !editorReadonly" },
+
+  // ----- Selection variants (hold ⇧ to select by word) -----
+  // Shift+Cmd+←/→ selects by word instead of line.
+  { "key": "shift+cmd+left",  "command": "-cursorHomeSelect", "when": "editorTextFocus" },
+  { "key": "shift+cmd+right", "command": "-cursorEndSelect",  "when": "editorTextFocus" },
+  { "key": "shift+cmd+left",  "command": "cursorWordStartLeftSelect", "when": "editorTextFocus" },
+  { "key": "shift+cmd+right", "command": "cursorWordEndRightSelect",  "when": "editorTextFocus" },
+
+  { "key": "enter",      "command": "-renameFile",         "when": "explorerViewletVisible && filesExplorerFocus && !inputFocus" },
+  { "key": "enter",      "command": "list.select",         "when": "explorerViewletVisible && filesExplorerFocus && !inputFocus" },
+  { "key": "cmd+enter",  "command": "renameFile",          "when": "explorerViewletVisible && filesExplorerFocus && !inputFocus" },
+  { "key": "ctrl+enter", "command": "explorer.openToSide", "when": "explorerViewletVisible && filesExplorerFocus && !inputFocus" },
+
+  // Page Down - workround to make cursor movement match Nvim
+  {
+    "key": "pagedown",
+    "command": "runCommands",
+    "when": "textInputFocus",
+    "args": {
+      "commands": [
+        "scrollPageDown",
+        {
+          "command": "cursorMove",
+          "args": { "to": "viewPortTop", "by": "line" }
+        },
+        // This makes it so that if you move in a direction your cursor will 'follow' you
+        // This moves the cursor down from the top of the screen to match 'cursor surrounding lines' in settings.json
+        // Some custom logic is required to get this to work fully in VSCode to match NVim, if you don't do this the
+        // navigation by paging is very confusing since doing an edit will then jump you back to where you were a long time ago.
+        "scrollLineDown",
+        "cursorDown",
+        "scrollLineDown",
+        "cursorDown",
+        "scrollLineDown",
+        "cursorDown",
+        "scrollLineDown",
+        "cursorDown",
+        "scrollLineDown",
+        "cursorDown",
+        "scrollLineDown",
+        "cursorDown",
+        "scrollLineDown",
+        "cursorDown",
+        "scrollLineDown",
+        "cursorDown"
+      ]
+    }
+  },
+
+  // Page Up - workround to make cursor movement match Nvim
+  {
+    "key": "pageup",
+    "command": "runCommands",
+    "when": "textInputFocus",
+    "args": {
+      "commands": [
+        "scrollPageUp",
+        {
+          "command": "cursorMove",
+          "args": { "to": "viewPortBottom", "by": "line" }
+        },
+        "scrollLineUp",
+        "cursorUp",
+        "scrollLineUp",
+        "cursorUp",
+        "scrollLineUp",
+        "cursorUp",
+        "scrollLineUp",
+        "cursorUp",
+        "scrollLineUp",
+        "cursorUp",
+        "scrollLineUp",
+        "cursorUp",
+        "scrollLineUp",
+        "cursorUp",
+        "scrollLineUp",
+        "cursorUp"
+      ]
+    }
+  },
+  // Build
+  {
+    "key": "shift+f2",
+    "command": "workbench.action.tasks.reRunTask",
+    "when": "taskCommandsRegistered"
+  },
+  // Fuzzy find class / file by name
+  {
+    "key": "shift+f3",
+    "command": "workbench.action.quickOpen"
+  },
+  // Scroll up 16 Lines
+  // Matches Nvim where small scrolls will keep the cursor in exacty the same relative place on the screen
+  {
+    "key": "cmd+u",
+    "command": "runCommands",
+    "when": "textInputFocus",
+    "args": {
+      "commands": [
+        "scrollLineUp",
+        "cursorUp",
+        "scrollLineUp",
+        "cursorUp",
+        "scrollLineUp",
+        "cursorUp",
+        "scrollLineUp",
+        "cursorUp",
+        "scrollLineUp",
+        "cursorUp",
+        "scrollLineUp",
+        "cursorUp",
+        "scrollLineUp",
+        "cursorUp",
+        "scrollLineUp",
+        "cursorUp",
+        "scrollLineUp",
+        "cursorUp",
+        "scrollLineUp",
+        "cursorUp",
+        "scrollLineUp",
+        "cursorUp",
+        "scrollLineUp",
+        "cursorUp",
+        "scrollLineUp",
+        "cursorUp",
+        "scrollLineUp",
+        "cursorUp",
+        "scrollLineUp",
+        "cursorUp",
+        "scrollLineUp",
+        "cursorUp"
+      ]
+    }
+  },
+  // Scroll down 16 Lines
+  {
+    "key": "cmd+d",
+    "command": "runCommands",
+    "when": "textInputFocus",
+    "args": {
+      "commands": [
+        "scrollLineDown",
+        "cursorDown",
+        "scrollLineDown",
+        "cursorDown",
+        "scrollLineDown",
+        "cursorDown",
+        "scrollLineDown",
+        "cursorDown",
+        "scrollLineDown",
+        "cursorDown",
+        "scrollLineDown",
+        "cursorDown",
+        "scrollLineDown",
+        "cursorDown",
+        "scrollLineDown",
+        "cursorDown",
+        "scrollLineDown",
+        "cursorDown",
+        "scrollLineDown",
+        "cursorDown",
+        "scrollLineDown",
+        "cursorDown",
+        "scrollLineDown",
+        "cursorDown",
+        "scrollLineDown",
+        "cursorDown",
+        "scrollLineDown",
+        "cursorDown",
+        "scrollLineDown",
+        "cursorDown",
+        "scrollLineDown",
+        "cursorDown"
+      ]
+    }
+  },
+  // Scroll up 16 Lines (Shift+K alias for Cmd+U)
+  {
+    "key": "shift+k",
+    "command": "runCommands",
+    "when": "textInputFocus && vim.mode == 'Normal'",
+    "args": {
+      "commands": [
+        "scrollLineUp",
+        "cursorUp",
+        "scrollLineUp",
+        "cursorUp",
+        "scrollLineUp",
+        "cursorUp",
+        "scrollLineUp",
+        "cursorUp",
+        "scrollLineUp",
+        "cursorUp",
+        "scrollLineUp",
+        "cursorUp",
+        "scrollLineUp",
+        "cursorUp",
+        "scrollLineUp",
+        "cursorUp",
+        "scrollLineUp",
+        "cursorUp",
+        "scrollLineUp",
+        "cursorUp",
+        "scrollLineUp",
+        "cursorUp",
+        "scrollLineUp",
+        "cursorUp",
+        "scrollLineUp",
+        "cursorUp",
+        "scrollLineUp",
+        "cursorUp",
+        "scrollLineUp",
+        "cursorUp",
+        "scrollLineUp",
+        "cursorUp"
+      ]
+    }
+  },
+  // Scroll down 16 Lines (Shift+J alias for Cmd+D)
+  {
+    "key": "shift+j",
+    "command": "runCommands",
+    "when": "textInputFocus && vim.mode == 'Normal'",
+    "args": {
+      "commands": [
+        "scrollLineDown",
+        "cursorDown",
+        "scrollLineDown",
+        "cursorDown",
+        "scrollLineDown",
+        "cursorDown",
+        "scrollLineDown",
+        "cursorDown",
+        "scrollLineDown",
+        "cursorDown",
+        "scrollLineDown",
+        "cursorDown",
+        "scrollLineDown",
+        "cursorDown",
+        "scrollLineDown",
+        "cursorDown",
+        "scrollLineDown",
+        "cursorDown",
+        "scrollLineDown",
+        "cursorDown",
+        "scrollLineDown",
+        "cursorDown",
+        "scrollLineDown",
+        "cursorDown",
+        "scrollLineDown",
+        "cursorDown",
+        "scrollLineDown",
+        "cursorDown",
+        "scrollLineDown",
+        "cursorDown",
+        "scrollLineDown",
+        "cursorDown"
+      ]
+    }
+  },
+  // Scroll up 16 Lines
+  // Matches Nvim where small scrolls will keep the cursor in exacty the same relative place on the screen
+  {
+    "key": "ctrl+u",
+    "command": "runCommands",
+    "when": "textInputFocus && !secondarySideBarFocus && !inSecondarySideBar",
+    "args": {
+      "commands": [
+        "scrollLineUp",
+        "cursorUp",
+        "scrollLineUp",
+        "cursorUp",
+        "scrollLineUp",
+        "cursorUp",
+        "scrollLineUp",
+        "cursorUp",
+        "scrollLineUp",
+        "cursorUp",
+        "scrollLineUp",
+        "cursorUp",
+        "scrollLineUp",
+        "cursorUp",
+        "scrollLineUp",
+        "cursorUp",
+        "scrollLineUp",
+        "cursorUp",
+        "scrollLineUp",
+        "cursorUp",
+        "scrollLineUp",
+        "cursorUp",
+        "scrollLineUp",
+        "cursorUp",
+        "scrollLineUp",
+        "cursorUp",
+        "scrollLineUp",
+        "cursorUp",
+        "scrollLineUp",
+        "cursorUp",
+        "scrollLineUp",
+        "cursorUp"
+      ]
+    }
+  },
+  // Scroll down 16 Lines
+  {
+    "key": "ctrl+d",
+    "command": "runCommands",
+    "when": "textInputFocus && !secondarySideBarFocus && !inSecondarySideBar",
+    "args": {
+      "commands": [
+        "scrollLineDown",
+        "cursorDown",
+        "scrollLineDown",
+        "cursorDown",
+        "scrollLineDown",
+        "cursorDown",
+        "scrollLineDown",
+        "cursorDown",
+        "scrollLineDown",
+        "cursorDown",
+        "scrollLineDown",
+        "cursorDown",
+        "scrollLineDown",
+        "cursorDown",
+        "scrollLineDown",
+        "cursorDown",
+        "scrollLineDown",
+        "cursorDown",
+        "scrollLineDown",
+        "cursorDown",
+        "scrollLineDown",
+        "cursorDown",
+        "scrollLineDown",
+        "cursorDown",
+        "scrollLineDown",
+        "cursorDown",
+        "scrollLineDown",
+        "cursorDown",
+        "scrollLineDown",
+        "cursorDown",
+        "scrollLineDown",
+        "cursorDown"
+      ]
+    }
+  },
+  // Stop Build / Stop Debugging
+  {
+    "key": "shift+f7",
+    "command": "runCommands",
+    "args": {
+      "commands": [
+        "workbench.action.tasks.terminate",
+        "workbench.action.debug.stop"
+      ]
+    }
+  },
+  // Goto Definition
+  {
+    "key": "shift+f8",
+    "command": "editor.action.revealDefinition",
+    "when": "editorHasDefinitionProvider && editorTextFocus"
+  },
+  // Toggle Comment
+  {
+    "key": "shift+f11",
+    "command": "editor.action.commentLine",
+    "when": "editorTextFocus"
+  },
+  
+  // Change within current file
+  // Makes the standard cmd-f shortcut map to the / key
+  // Useful as I have a macro mapped to cmd-f
+  {
+    "key": "cmd+f",
+    "command": "runCommands",
+    "when": "editorTextFocus",
+    "args": {
+      "commands": [
+        "extension.vim_escape",
+        {
+          "command": "vim.remap",
+          "args": { "after": ["/"] }
+        }
+      ]
+    }
+  },
+  {
+    "key": "cmd+t",
+    "command": "workbench.action.closePanel",
+    "when": "panelVisible"
+  },
+  {
+    "key": "cmd+t",
+    "when": "!panelVisible",
+    "command": "runCommands",
+    "args": {
+      "commands": [
+        // When the are closing the terminal disable fullscreen mode so
+        // subsequent usage of the terminal is not fullscreen
+        "workbench.action.toggleMaximizedPanel",
+        // Show the terminal
+        "workbench.action.terminal.toggleTerminal"
+        // Auto select the main terminal
+        // "workbench.action.terminal.focusAtIndex1"
+      ]
+    }
+  },
+  {
+    "key": "cmd+r",
+    "command": "workbench.action.closePanel",
+    "when": "panelVisible"
+  },
+  {
+    "key": "cmd+r",
+    "when": "!panelVisible",
+    "command": "runCommands",
+    "args": {
+      "commands": [
+        // When the are closing the terminal disable fullscreen mode so
+        // subsequent usage of the terminal is not fullscreen
+        "workbench.action.toggleMaximizedPanel",
+        // Show the terminal
+        "workbench.action.terminal.toggleTerminal",
+        // Auto select the main terminal
+        "workbench.action.terminal.focusAtIndex1"
+      ]
+    }
+  },
+  {
+    // Close the editor terminal as soon as cmd+t is pressed - things that launch into there should be transient
+    "key": "cmd+t",
+    "command": "runCommands",
+    "when": "terminalFocus && terminalEditorActive",
+    "args": {
+      "commands": [
+        "workbench.action.unpinEditor",
+        "workbench.action.revertAndCloseActiveEditor"
+      ]
+    }
+  },
+  // Duplicate terminal commands to run with ctrl+/ as well
+  {
+    "key": "ctrl+/",
+    "command": "workbench.action.closePanel",
+    "when": "panelVisible"
+  },
+  {
+    // Close the terminal when it's focused
+    "key": "ctrl+/",
+    "when": "!panelVisible",
+    "command": "runCommands",
+    "args": {
+      "commands": [
+        // When the are closing the terminal disable fullscreen mode so
+        // subsequent usage of the terminal is not fullscreen
+        "workbench.action.toggleMaximizedPanel",
+        // Show the terminal
+        "workbench.action.terminal.toggleTerminal"
+        // Auto select the main terminal
+        // "workbench.action.terminal.focusAtIndex1"
+      ]
+    }
+  },
+  {
+    // Close the editor terminal as soon as cmd+t is pressed - things that launch into there should be transient
+    "key": "ctrl+/",
+    "command": "runCommands",
+    "when": "terminalFocus && terminalEditorActive",
+    "args": {
+      "commands": [
+        "workbench.action.unpinEditor",
+        "workbench.action.revertAndCloseActiveEditor"
+      ]
+    }
+  },
+  // File explorer & Git
+  // Explorer
+  {
+    "key": "o",
+    "command": "explorer.newFile",
+    "when": "filesExplorerFocus && !inputFocus"
+  },
+  {
+    "command": "renameFile",
+    "key": "c",
+    "when": "filesExplorerFocus && !inputFocus"
+  },
+  {
+    "key": "shift+o",
+    "command": "explorer.newFolder",
+    "when": "explorerViewletFocus"
+  },
+  {
+    "command": "deleteFile",
+    "key": "d",
+    "when": "filesExplorerFocus && !inputFocus"
+  },
+  {
+    "key": "a",
+    "command": "runCommands",
+    "when": "filesExplorerFocus && !inputFocus",
+    "args": {
+      "commands": [
+        "explorer.newFile"
+      ]
+    }
+  },
+  // Diff
+  {
+    // Goto next change
+    "key": "alt+down",
+    "command": "workbench.action.compareEditor.nextChange",
+    "when": "textCompareEditorVisible && editorTextFocus"
+  },
+  {
+    // Goto previous change
+    "key": "alt+up",
+    "command": "workbench.action.compareEditor.previousChange",
+    "when": "textCompareEditorVisible && editorTextFocus"
+  },
+
+  // Merging
+  {
+    "key": "alt+down",
+    "command": "merge.goToNextUnhandledConflict",
+    "when": "isMergeEditor"
+  },
+  {
+    "key": "alt+up",
+    "command": "merge.goToPreviousUnhandledConflict",
+    "when": "isMergeEditor"
+  },
+  // Debug Navigation
+  {
+    "key": "alt+down",
+    "command": "workbench.action.debug.stepOver",
+    "when": "inDebugMode && debugState == 'stopped' && editorTextFocus"
+  },
+  {
+    "key": "alt+up",
+    "command": "workbench.action.debug.stepInto",
+    "when": "inDebugMode && debugState == 'stopped' && editorTextFocus"
+  },
+  {
+    "key": "alt+h",
+    "command": "workbench.action.debug.stepOut",
+    "when": "inDebugMode && debugState == 'stopped' && editorTextFocus"
+  },
+  // Selection
+  {
+    "key": "ctrl-n",
+    "command": "editor.action.addSelectionToNextFindMatch",
+    "when": "(vim.mode == 'Normal' || vim.mode == 'Visual') && (editorTextFocus || !inputFocus)"
+  },
+  // Editor terminal
+  {
+    "key": "ctrl+tab",
+    "command": "workbench.action.nextEditor",
+    "when": "isWindows"
+  },
+  {
+    "key": "ctrl+shift+tab",
+    "command": "workbench.action.previousEditor",
+    "when": "isWindows"
+  },
+  {
+    "key": "cmd+s",
+    "command": "workbench.action.terminal.sendSequence",
+    "args": { "text": "\u001B[15;2~" }, // sends Shift‑F5
+    "when": "terminalFocus"
+  },
+  {
+    "key": "alt+o",
+    "command": "clangd.switchheadersource",
+    "when": "editorTextFocus && resourceLangId == 'c' || editorTextFocus && resourceLangId == 'cpp' || editorTextFocus && resourceLangId == 'cuda-cpp' || editorTextFocus && resourceLangId == 'objective-c' || editorTextFocus && resourceLangId == 'objective-cpp'"
+  },
+  {
+    "key": "ctrl+h",
+    "command": "workbench.action.focusLeftGroup"
+  },
+  {
+    "key": "ctrl+j",
+    "command": "workbench.action.focusBelowGroup"
+  },
+  {
+    "key": "ctrl+k",
+    "command": "workbench.action.focusActiveEditorGroup"
+  },
+  {
+    "key": "ctrl+l",
+    "command": "workbench.action.focusRightGroup"
+  },
+  {
+    "key": "ctrl+up",
+    "command": "workbench.action.increaseViewSize",
+    "when": "editorTextFocus && vim.mode == 'Normal'"
+  },
+  {
+    "key": "ctrl+down",
+    "command": "workbench.action.decreaseViewSize",
+    "when": "editorTextFocus && vim.mode == 'Normal'"
+  },
+  {
+    "key": "ctrl+left",
+    "command": "workbench.action.decreaseViewSize",
+    "when": "editorTextFocus && vim.mode == 'Normal'"
+  },
+  {
+    "key": "ctrl+right",
+    "command": "workbench.action.increaseViewSize",
+    "when": "editorTextFocus && vim.mode == 'Normal'"
+  },
+  // Sidebar toggle (use VS Code default)
+  { "key": "cmd+b", "command": "workbench.action.toggleSidebarVisibility" },
+
+  // Bottom Panel (Terminal/Problems/Output/Debug Console) — default toggle
+  { "key": "cmd+j", "command": "workbench.action.togglePanel" },
+
+
+  // Close panels with Shift modifier — removed to avoid conflicts
+
+  // Page Copilot Chat history from input - macOS
+  {
+    "key": "cmd+d",
+    "command": "runCommands",
+    "when": "inChatInput",
+    "args": { "commands": [
+      "list.scrollDown",
+      "list.scrollDown",
+      "list.scrollDown",
+      "list.scrollDown",
+      "list.scrollDown",
+      "list.scrollDown",
+      "list.scrollDown",
+      "list.scrollDown",
+      "list.scrollDown",
+      "list.scrollDown",
+      "list.scrollDown",
+      "list.scrollDown",
+      "list.scrollDown",
+      "list.scrollDown",
+      "list.scrollDown",
+      "list.scrollDown",
+      "list.scrollDown",
+      "list.scrollDown",
+      "list.scrollDown",
+      "list.scrollDown",
+      "list.scrollDown",
+      "list.scrollDown",
+      "list.scrollDown",
+      "list.scrollDown",
+      "list.scrollDown",
+      "list.scrollDown",
+      "list.scrollDown",
+      "list.scrollDown",
+      "list.scrollDown",
+      "list.scrollDown",
+    ] }
+  },
+  {
+    "key": "cmd+u",
+    "command": "runCommands",
+    "when": "inChatInput",
+    "args": { "commands": [
+      "list.scrollUp",
+      "list.scrollUp",
+      "list.scrollUp",
+      "list.scrollUp",
+      "list.scrollUp",
+      "list.scrollUp",
+      "list.scrollUp",
+      "list.scrollUp",
+      "list.scrollUp",
+      "list.scrollUp",
+      "list.scrollUp",
+      "list.scrollUp",
+      "list.scrollUp",
+      "list.scrollUp",
+      "list.scrollUp",
+      "list.scrollUp",
+      "list.scrollUp",
+      "list.scrollUp",
+      "list.scrollUp",
+      "list.scrollUp",
+      "list.scrollUp",
+      "list.scrollUp",
+      "list.scrollUp",
+      "list.scrollUp",
+      "list.scrollUp",
+      "list.scrollUp",
+      "list.scrollUp",
+      "list.scrollUp",
+      "list.scrollUp",
+      "list.scrollUp",
+    ] }
+  },
+
+  {
+    "key": "ctrl+d",
+    "command": "runCommands",
+    "when": "inChatInput",
+    "args": { "commands": [
+      "list.scrollDown",
+      "list.scrollDown",
+      "list.scrollDown",
+      "list.scrollDown",
+      "list.scrollDown",
+      "list.scrollDown",
+      "list.scrollDown",
+      "list.scrollDown",
+      "list.scrollDown",
+      "list.scrollDown",
+      "list.scrollDown",
+      "list.scrollDown",
+      "list.scrollDown",
+      "list.scrollDown",
+      "list.scrollDown",
+      "list.scrollDown",
+      "list.scrollDown",
+      "list.scrollDown",
+      "list.scrollDown",
+      "list.scrollDown",
+      "list.scrollDown",
+      "list.scrollDown",
+      "list.scrollDown",
+      "list.scrollDown",
+      "list.scrollDown",
+      "list.scrollDown",
+      "list.scrollDown",
+      "list.scrollDown",
+      "list.scrollDown",
+      "list.scrollDown",
+    ] }
+  },
+  {
+    "key": "ctrl+u",
+    "command": "runCommands",
+    "when": "inChatInput",
+    "args": { "commands": [
+      "list.scrollUp",
+      "list.scrollUp",
+      "list.scrollUp",
+      "list.scrollUp",
+      "list.scrollUp",
+      "list.scrollUp",
+      "list.scrollUp",
+      "list.scrollUp",
+      "list.scrollUp",
+      "list.scrollUp",
+      "list.scrollUp",
+      "list.scrollUp",
+      "list.scrollUp",
+      "list.scrollUp",
+      "list.scrollUp",
+      "list.scrollUp",
+      "list.scrollUp",
+      "list.scrollUp",
+      "list.scrollUp",
+      "list.scrollUp",
+      "list.scrollUp",
+      "list.scrollUp",
+      "list.scrollUp",
+      "list.scrollUp",
+      "list.scrollUp",
+      "list.scrollUp",
+      "list.scrollUp",
+      "list.scrollUp",
+      "list.scrollUp",
+      "list.scrollUp",
+    ] }
+  },
+
+  // Right (Secondary) Side Bar — single ⌘ stroke (handled in unified block below)
+
+  // === Simplified toggles (Cmd only) =========================================
+  
+  // Removed ctrl unbinds
+
+  // Left Side Bar (Explorer/SCM/Extensions...)
+  { "key": "cmd+b",  "command": "workbench.action.toggleSidebarVisibility" },
+
+  // Toggle Explorer with Space e
+  { "key": "space e", "command": "workbench.action.closeSidebar", "when": "explorerViewletVisible && filesExplorerFocus && !editorTextFocus" },
+
+  // Bottom Panel (Terminal/Problems/Output/Debug Console) — default toggle
+  { "key": "cmd+j", "command": "workbench.action.togglePanel" },
+
+
+  // Unified right side: Secondary Side Bar — toggle
+  { "key": "cmd+;",  "command": "workbench.action.toggleAuxiliaryBar" },
+
+  // Focus editor directly
+  { "key": "cmd+k",  "command": "workbench.action.focusActiveEditorGroup" },
+
+
+  // === Splits (one modifier only) ============================================
+  { "key": "cmd+\\",  "command": "workbench.action.splitEditor" },
+  { "key": "ctrl+\\", "command": "workbench.action.splitEditorDown" },
+
+  // === Move between editor groups (single-mod, standard) =====================
+  // VS Code defaults on macOS (Cmd) + mirrored Ctrl versions
+  { "key": "cmd+1",  "command": "workbench.action.focusFirstEditorGroup" },
+  { "key": "cmd+2",  "command": "workbench.action.focusSecondEditorGroup" },
+  { "key": "cmd+3",  "command": "workbench.action.focusThirdEditorGroup" },
+  { "key": "ctrl+1", "command": "workbench.action.focusFirstEditorGroup" },
+  { "key": "ctrl+2", "command": "workbench.action.focusSecondEditorGroup" },
+  { "key": "ctrl+3", "command": "workbench.action.focusThirdEditorGroup" },
+  // FZF search tools
+  {
+    "key": "f8",
+    "command": "workbench.action.debug.stop",
+    "when": "inDebugMode && !focusedSessionIsAttach"
+  },
+  {
+    "key": "f8",
+    "command": "-editor.action.marker.nextInFiles",
+    "when": "editorFocus"
+  }
+]

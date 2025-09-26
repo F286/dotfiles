@@ -1,0 +1,8 @@
+{{- if eq .chezmoi.os "darwin" -}}
+#!/usr/bin/env bash
+set -euo pipefail
+
+# JetBrains Mono Nerd Font is now included directly in the repo
+# No need to install via Homebrew - fonts are managed by chezmoi
+echo "JetBrains Mono Nerd Font fonts are managed directly by chezmoi"
+{{- end -}}

@@ -1,0 +1,38 @@
+{{- /* chezmoi template: run on change; safe on repeated runs */ -}}
+#!/usr/bin/env bash
+set -euo pipefail
+
+OS="{{ .chezmoi.os }}"
+
+has() { command -v "$1" >/dev/null 2>&1; }
+
+already() {
+  echo "AltTab already installed: $1"
+}
+
+case "$OS" in
+  darwin)
+    # Prefer Homebrew Cask install
+    if has brew; then
+      if brew list --cask alt-tab >/dev/null 2>&1; then
+        already "brew list --cask alt-tab"
+      else
+        echo "Installing AltTab with Homebrew Cask…"
+        brew install --cask alt-tab
+      fi
+    else
+      # Fallback: detect existing .app bundle
+      if [ -d "/Applications/AltTab.app" ] || [ -d "$HOME/Applications/AltTab.app" ]; then
+        already "/Applications/AltTab.app detected"
+      else
+        echo "Homebrew not found; please install AltTab manually from https://alt-tab-macos.netlify.app/"
+      fi
+    fi
+    ;;
+  *)
+    # Non-macOS platforms: nothing to do
+    ;;
+esac
+
+exit 0
+
