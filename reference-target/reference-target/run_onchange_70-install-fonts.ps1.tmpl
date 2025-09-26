@@ -1,0 +1,38 @@
+{{- if eq .chezmoi.os "windows" -}}
+# Install JetBrains Mono Nerd Fonts on Windows
+$ErrorActionPreference = "Stop"
+
+Write-Host "Installing JetBrains Mono Nerd Fonts..." -ForegroundColor Green
+
+# Windows: Install to user's local fonts directory (no admin required)
+$FontDir = "$env:LOCALAPPDATA\Microsoft\Windows\Fonts"
+New-Item -ItemType Directory -Force -Path $FontDir | Out-Null
+
+# Copy fonts from chezmoi source to system location
+$SourceFontDir = "{{ .chezmoi.sourceDir }}\fonts"
+if (Test-Path $SourceFontDir) {
+    Get-ChildItem -Path "$SourceFontDir\*.ttf" | ForEach-Object {
+        Copy-Item $_.FullName $FontDir -Force
+        Write-Host "✓ Installed $($_.Name)" -ForegroundColor Green
+    }
+    
+    # Register fonts in the registry (for user-level installation)
+    $FontFiles = Get-ChildItem -Path "$FontDir\*.ttf"
+    foreach ($Font in $FontFiles) {
+        $FontName = [System.Drawing.Text.PrivateFontCollection]::new()
+        $FontName.AddFontFile($Font.FullName)
+        $ActualFontName = $FontName.Families[0].Name
+        
+        # Register in user registry
+        $RegPath = "HKCU:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Fonts"
+        Set-ItemProperty -Path $RegPath -Name "$ActualFontName (TrueType)" -Value $Font.Name -Force
+        $FontName.Dispose()
+    }
+    
+    Write-Host "✅ Font installation complete!" -ForegroundColor Green
+    Write-Host "ℹ️  You may need to restart applications to see the new fonts." -ForegroundColor Yellow
+} else {
+    Write-Error "Font source directory not found: $SourceFontDir"
+    exit 1
+}
+{{- end -}}

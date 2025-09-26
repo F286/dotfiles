@@ -1,0 +1,22 @@
+# Make templates tolerant of missing keys like `.env.FOO` in CI.
+[template]
+  options = ["missingkey=zero"]
+
+# When running in CI, redirect the destination to a sandbox so we do not touch
+# the runner's real home directory. On developer machines, fall back to the
+# true home directory which keeps chezmoi behaviour intuitive.
+{{- $tmp := coalesce (env "RUNNER_TEMP") (env "TMPDIR") (env "TEMP") (env "TMP") "" -}}
+{{- if and (env "CI") $tmp -}}
+destDir = "{{ joinPath $tmp "chezmoi-home" }}"
+{{- else -}}
+destDir = "{{ .chezmoi.homeDir }}"
+{{- end -}}
+
+# Use symlink mode everywhere so the destination always points back to the
+# source tree. This keeps `chezmoi diff` quiet when files are unchanged and
+# makes it easy to inspect the linked source directly.
+mode = "symlink"
+
+# Ensure `.env` exists so `.env.*` lookups don't fail outright.
+[data]
+  env = {}

@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Build args as an array so quoting stays correct.
+# Build args as an array so quoting stays correct.
+ADDITIONAL_ARGS=(--bind "enter:become(cd '{root}' && nvim +{2} {1})")
+
+if [[ "${1:-}" == "--code" ]]; then
+  # Open at line without becoming; keep fzf running. Work relative to search root.
+  ADDITIONAL_ARGS=(
+    --bind 'enter:execute-silent(code -r --goto {1}:{2}:{3})+abort' \
+  )
+  shift
+fi
+
+: "${FZF_DEFAULT_COMMAND:=rg --files}"
+export FZF_DEFAULT_COMMAND
+
+exec fzf \
+  --tiebreak=pathname \
+  --delimiter : \
+  --height=100% \
+  --preview 'bat --style=numbers --color=always --line-range :500 {}' \
+  --preview-window 'right,55%' \
+  "${ADDITIONAL_ARGS[@]}"

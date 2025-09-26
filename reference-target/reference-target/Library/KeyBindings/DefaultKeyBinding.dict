@@ -1,0 +1,16 @@
+{
+    /* Cmd+Left/Right → move by word */
+    "@\UF702" = "moveWordBackward:";
+    "@\UF703" = "moveWordForward:";
+
+    /* Cmd+Shift+Left/Right → select by word */
+    "@$\UF702" = "moveWordBackwardAndModifySelection:";
+    "@$\UF703" = "moveWordForwardAndModifySelection:";
+
+    /* Cmd+Delete (backspace) → delete word backward */
+    "@\U0008" = "deleteWordBackward:";
+    "@\U007F" = "deleteWordBackward:";
+
+    /* Cmd+Forward Delete (or Cmd+Fn+Delete on laptops) → delete word forward */
+    "@\UF728" = "deleteWordForward:";
+}

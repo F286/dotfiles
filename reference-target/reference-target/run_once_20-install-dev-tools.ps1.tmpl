@@ -1,0 +1,119 @@
+{{- if eq .chezmoi.os "windows" -}}
+$ErrorActionPreference = 'Stop'
+
+function Test-CommandExists {
+  param([string]$Name)
+  return [bool](Get-Command $Name -ErrorAction SilentlyContinue)
+}
+
+function Try-WingetInstall {
+  param([string]$Id)
+  if (Test-CommandExists 'winget') {
+    winget install --id $Id -e --accept-package-agreements --accept-source-agreements
+    return $LASTEXITCODE -eq 0
+  }
+  return $false
+}
+
+function Try-ScoopInstall {
+  param(
+    [string]$Name,
+    [string]$Bucket = $null
+  )
+  if (Test-CommandExists 'scoop') {
+    if ($Bucket) {
+      scoop bucket add $Bucket | Out-Null
+    }
+    scoop install $Name
+    return $LASTEXITCODE -eq 0
+  }
+  return $false
+}
+
+function Try-ChocoInstall {
+  param([string]$Name)
+  if (Test-CommandExists 'choco') {
+    choco install $Name -y
+    return $LASTEXITCODE -eq 0
+  }
+  return $false
+}
+
+function Ensure-LazyVimConfig {
+  if (-not (Test-CommandExists 'git')) {
+    Write-Warning 'git not found; skipping LazyVim bootstrap.'
+    return
+  }
+
+  $configDir = Join-Path $env:LOCALAPPDATA 'nvim'
+  $tmp = Join-Path ([System.IO.Path]::GetTempPath()) ([System.Guid]::NewGuid().ToString())
+  New-Item -ItemType Directory -Force -Path $tmp | Out-Null
+
+  try {
+    git clone --depth=1 https://github.com/LazyVim/starter (Join-Path $tmp 'starter') | Out-Null
+    if (Test-Path $configDir) {
+      Remove-Item $configDir -Recurse -Force
+    }
+    New-Item -ItemType Directory -Force -Path (Split-Path -Parent $configDir) | Out-Null
+    Move-Item (Join-Path $tmp 'starter') $configDir
+    Remove-Item (Join-Path $configDir '.git') -Force -Recurse -ErrorAction SilentlyContinue
+  }
+  catch {
+    Write-Warning "Failed to clone LazyVim starter: $_"
+  }
+  finally {
+    Remove-Item $tmp -Recurse -Force -ErrorAction SilentlyContinue
+  }
+}
+
+function Ensure-Neovim {
+  if (-not (Test-CommandExists 'nvim')) {
+    if (-not (Try-WingetInstall 'Neovim.Neovim') -and -not (Try-ScoopInstall 'neovim') -and -not (Try-ChocoInstall 'neovim')) {
+      Write-Warning 'Install neovim manually (winget/scoop/choco unavailable).'
+    }
+  }
+  Ensure-LazyVimConfig
+}
+
+function Ensure-Helix {
+  if (Test-CommandExists 'hx') { return }
+  if (-not (Try-WingetInstall 'Helix.Helix') -and -not (Try-ChocoInstall 'helix') -and -not (Try-ScoopInstall 'helix')) {
+    Write-Warning 'Install helix manually.'
+  }
+}
+
+function Ensure-Lazygit {
+  if (Test-CommandExists 'lazygit') { return }
+  if (-not (Try-WingetInstall 'JesseDuffield.lazygit') -and -not (Try-ScoopInstall 'lazygit' 'extras')) {
+    Write-Warning 'Install lazygit manually.'
+  }
+}
+
+function Ensure-Ripgrep {
+  if (Test-CommandExists 'rg') { return }
+  if (-not (Try-WingetInstall 'BurntSushi.ripgrep.MSVC') -and -not (Try-ScoopInstall 'ripgrep') -and -not (Try-ChocoInstall 'ripgrep')) {
+    Write-Warning 'Install ripgrep manually.'
+  }
+}
+
+function Ensure-Bat {
+  if (Test-CommandExists 'bat') { return }
+  if (-not (Try-WingetInstall 'sharkdp.bat') -and -not (Try-ScoopInstall 'bat') -and -not (Try-ChocoInstall 'bat')) {
+    Write-Warning 'Install bat manually.'
+  }
+}
+
+function Ensure-WezTerm {
+  if (Test-CommandExists 'wezterm') { return }
+  if (-not (Try-WingetInstall 'wez.wezterm') -and -not (Try-ChocoInstall 'wezterm')) {
+    Write-Warning 'Install wezterm manually (winget recommended).'
+  }
+}
+
+Ensure-Neovim
+Ensure-Helix
+Ensure-Lazygit
+Ensure-Ripgrep
+Ensure-Bat
+Ensure-WezTerm
+{{- end -}}
