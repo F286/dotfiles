@@ -1,4 +1,62 @@
 {
+    "html.autoClosingTags": false,
+    "auto-close-tag.activationOnLanguage": [
+      "html",
+      "css",
+      "xml",
+      "php",
+      "blade",
+      "ejs",
+      "jinja",
+      "javascript",
+      "javascriptreact",
+      "typescript",
+      "typescriptreact",
+      "plaintext",
+      "markdown",
+      "vue",
+      "liquid",
+      "erb",
+      "lang-cfml",
+      "cfml",
+      "HTML (Eex)"
+  ],
+  "editor.autoClosingQuotes":"never",
+  "editor.autoClosingBrackets": "languageDefined",
+  "editor.autoClosingPairs": "never",
+  "editor.autoSurround": "never",
+  "html.autoCreateQuotes": false,
+  "vim.highlightedyank.color": "rgba(255, 223, 93, 0.3)", // warm gold, soft opacity
+  "vscode-textobjects.vimKeybindings": {
+    "select": "v",
+    "change": "c",
+    "delete": "d",
+    "yank": "y",
+    "go to next start": "[",
+    "go to next end": "[ [",
+    "go to previous start": "]",
+    "go to previous end": "] ]",
+    "inner": "i",
+    "outer": "a",
+    "array": "a",
+    "call": "m",
+    "class": "k",
+    "comment": "c",
+    "conditional": "i",
+    "function": "f",
+    "lhs": "h",
+    "loop": "l",
+    "node": "n",
+    "object": "o",
+    "rhs": "r",
+    "parameters": "e",
+    "string": "q",
+    "type": "y",
+    "variable": "v"
+  },
+
+
+
   // Cursor navigation settings
   "editor.cursorSurroundingLines": 8,
   "editor.cursorSurroundingLinesStyle": "all",
@@ -34,8 +92,12 @@
   "security.workspace.trust.untrustedFiles": "prompt",
   // Increase terminal scrollback similar to using a terminal split in Neovim
   "terminal.integrated.scrollback": 10000,
-  "editor.fontFamily": "JetBrainsMono Nerd Font, JetBrains Mono, monospace",
+
+  "editor.fontFamily": "'JetBrains Mono', 'JetBrainsMono Nerd Font', monospace",
   "editor.fontLigatures": true,
+  "editor.fontWeight": "250",
+  "editor.fontVariations": "'wght' 250",
+  "editor.letterSpacing": 0.35,
   "terminal.integrated.fontFamily": "JetBrainsMono Nerd Font, JetBrains Mono, monospace",
   "terminal.integrated.defaultProfile.linux": "zsh",
   "terminal.integrated.defaultProfile.osx": "zsh",
@@ -308,6 +370,11 @@
   "vim.easymotionKeys": "tsraneiodhgmplfuc,bjvk",
   // Leader key and custom key mappings
   "vim.leader": "<space>",
+  "vim.operatorPendingModeKeyBindingsNonRecursive": [
+    // Entire buffer text object
+    { "before": ["a", "g"], "after": ["a", "e"] },
+    { "before": ["i", "g"], "after": ["i", "e"] }
+  ],
   "vim.normalModeKeyBindingsNonRecursive": [
     {
       "before": ["<leader>", "v"],
