@@ -34,6 +34,48 @@
   { "key": "cmd+enter",  "command": "renameFile",          "when": "explorerViewletVisible && filesExplorerFocus && !inputFocus" },
   { "key": "ctrl+enter", "command": "explorer.openToSide", "when": "explorerViewletVisible && filesExplorerFocus && !inputFocus" },
   
+  // Scroll up 16 Lines
+  {
+    "key": "cmd+u",
+    "command": "runCommands",
+    "when": "textInputFocus && vim.mode == 'Normal'",
+    "args": {
+      "commands": [
+        "scrollLineUp",
+        "cursorUp",
+        "scrollLineUp",
+        "cursorUp",
+        "scrollLineUp",
+        "cursorUp",
+        "scrollLineUp",
+        "cursorUp",
+        "scrollLineUp",
+        "cursorUp",
+        "scrollLineUp",
+        "cursorUp",
+        "scrollLineUp",
+        "cursorUp",
+        "scrollLineUp",
+        "cursorUp",
+        "scrollLineUp",
+        "cursorUp",
+        "scrollLineUp",
+        "cursorUp",
+        "scrollLineUp",
+        "cursorUp",
+        "scrollLineUp",
+        "cursorUp",
+        "scrollLineUp",
+        "cursorUp",
+        "scrollLineUp",
+        "cursorUp",
+        "scrollLineUp",
+        "cursorUp",
+        "scrollLineUp",
+        "cursorUp"
+      ]
+    }
+  },
   // Scroll up 16 Lines (Shift+K alias for Cmd+U)
   {
     "key": "shift+k",
@@ -73,6 +115,48 @@
         "cursorUp",
         "scrollLineUp",
         "cursorUp"
+      ]
+    }
+  },
+  // Scroll down 16 Lines
+  {
+    "key": "cmd+d",
+    "command": "runCommands",
+    "when": "textInputFocus && vim.mode == 'Normal'",
+    "args": {
+      "commands": [
+        "scrollLineDown",
+        "cursorDown",
+        "scrollLineDown",
+        "cursorDown",
+        "scrollLineDown",
+        "cursorDown",
+        "scrollLineDown",
+        "cursorDown",
+        "scrollLineDown",
+        "cursorDown",
+        "scrollLineDown",
+        "cursorDown",
+        "scrollLineDown",
+        "cursorDown",
+        "scrollLineDown",
+        "cursorDown",
+        "scrollLineDown",
+        "cursorDown",
+        "scrollLineDown",
+        "cursorDown",
+        "scrollLineDown",
+        "cursorDown",
+        "scrollLineDown",
+        "cursorDown",
+        "scrollLineDown",
+        "cursorDown",
+        "scrollLineDown",
+        "cursorDown",
+        "scrollLineDown",
+        "cursorDown",
+        "scrollLineDown",
+        "cursorDown"
       ]
     }
   },
