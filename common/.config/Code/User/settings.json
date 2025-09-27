@@ -614,8 +614,16 @@
       "commands": ["workbench.action.nextEditor"]
     },
     {
+      "before": ["<S-l>"],
+      "commands": ["workbench.action.nextEditor"]
+    },
+    {
       // Previous tab
       "before": ["[", "b"],
+      "commands": ["workbench.action.previousEditor"]
+    },
+    {
+      "before": ["<S-h>"],
       "commands": ["workbench.action.previousEditor"]
     },
     {
