@@ -1,5 +1,17 @@
 // Place your key bindings in this file to override the defaults
 [
+  // ----- LazyVim-style jumplist navigation -----
+  // Remove defaults that conflict with these bindings.
+  { "key": "cmd+o", "command": "-workbench.action.files.openFile" },
+  { "key": "cmd+i", "command": "-editor.action.triggerSuggest" },
+  { "key": "ctrl+i", "command": "-editor.action.triggerSuggest", "when": "editorHasCompletionItemProvider && editorTextFocus && !editorReadonly" },
+
+  // Navigate backward/forward through editor history.
+  { "key": "cmd+o", "command": "workbench.action.navigateBack" },
+  { "key": "cmd+i", "command": "workbench.action.navigateForward" },
+  { "key": "ctrl+o", "command": "workbench.action.navigateBack" },
+  { "key": "ctrl+i", "command": "workbench.action.navigateForward" },
+
   // Scroll up 16 Lines
   {
     "key": "cmd+u",
