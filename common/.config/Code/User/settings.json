@@ -5050,4 +5050,225 @@
     // ----------------------- END AUTO GENERATED SECTION -----------------------
 
   ],
+  // To improve performance
+  "extensions.experimental.affinity": {
+    "vscodevim.vim": 1
+  },
+  // Disable links as there is an underline effect that is not great
+  // Goto definition works regardless so not needed
+  "editor.links": false,
+  // Theme
+  "workbench.colorTheme": "Visual Studio Dark - C++",
+  "window.titleBarStyle": "custom",
+  "editor.minimap.enabled": false,
+  "editor.fontSize": 16,
+  "terminal.integrated.fontSize": 16,
+  "terminal.integrated.enableVisualBell": false,
+  "accessibility.signals.terminalBell": {
+    "sound": "off"
+  },
+  "terminal.integrated.confirmOnKill": "never",
+  "[json]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": false
+  },
+  "[jsonc]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": false
+  },
+  // Fuzzy Finder
+  "search.exclude": {
+    // -------------------
+    // Version Control
+    // -------------------
+    "**/.git": true,
+    "**/.svn": true,
+    "**/.hg": true,
+
+    // -------------------
+    // IDE / Editor / OS junk
+    // -------------------
+    "**/.vscode": true,
+    "**/.idea": true,
+    "**/.DS_Store": true,
+    "**/.vs": true,
+    "**/*.swp": true,
+    "**/*.swo": true,
+    "**/*.bak": true,
+
+    // -------------------
+    // General build / cache / temp
+    // -------------------
+    "**/out": true,
+    "**/obj": true,
+    "**/dist": true,
+    "**/build": true,
+    "**/tmp": true,
+    "**/temp": true,
+    "**/cache": true,
+    "**/.cache": true,
+    "**/logs": true,
+    "**/*.log": true,
+    "**/*.tmp": true,
+    "**/*.dSYM": true,
+
+    // -------------------
+    // Node / Frontend
+    // -------------------
+    "**/node_modules": true,
+    "**/bower_components": true,
+    "**/jspm_packages": true,
+    "**/coverage": true,
+    "**/.next": true,
+    "**/.nuxt": true,
+    "**/.svelte-kit": true,
+    "**/.turbo": true,
+    "**/.vercel": true,
+    "**/.cache-loader": true,
+
+    // -------------------
+    // Python
+    // -------------------
+    "**/__pycache__": true,
+    "**/.mypy_cache": true,
+    "**/.pytest_cache": true,
+    "**/.tox": true,
+    "**/.eggs": true,
+    "**/*.egg-info": true,
+    "**/.ipynb_checkpoints": true,
+    "**/.venv": true,
+    "**/env": true,
+
+    // -------------------
+    // Java / JVM
+    // -------------------
+    "**/.gradle": true,
+    "**/.mvn": true,
+    "**/target": true,
+    "**/build/classes": true,
+    "**/build/generated": true,
+    "**/*.class": true,
+
+    // -------------------
+    // PHP / Composer
+    // -------------------
+    "**/vendor": true,
+
+    // -------------------
+    // C / C++
+    // -------------------
+    "**/CMakeFiles": true,
+    "**/CMakeCache.txt": true,
+    "**/Debug": true,
+    "**/Release": true,
+    "**/*.o": true,
+    "**/*.obj": true,
+    "**/*.exe": true,
+    "**/*.pdb": true,
+    "**/*.ilk": true,
+
+    // -------------------
+    // Go
+    // -------------------
+    "**/pkg": true,
+    "**/bin": true,
+
+    // -------------------
+    // Infra / DevOps
+    // -------------------
+    "**/.terraform": true,
+    "**/.ansible": true,
+    "**/.chef": true,
+    "**/.serverless": true,
+
+    // -------------------
+    // Static Site Generators
+    // -------------------
+    "**/.jekyll-cache": true,
+    "**/_site": true,
+    "**/.docusaurus": true,
+
+    // -------------------
+    // Generated / build system artifacts
+    // -------------------
+    "**/gen": true,
+    "**/*.ninja": true,
+    "**/*.stamp": true
+  },
+  "search.useGlobalIgnoreFiles": true,
+  "search.useParentIgnoreFiles": true,
+  "fzf-picker.general.useGitIgnoreExcludes": true,
+  // Minimalism
+  "editor.guides.indentation": false,
+  "editor.hideCursorInOverviewRuler": true, // Hide cursor in scrollbar for a cleaner look
+  "editor.overviewRulerBorder": false, // No border on scrollbar
+  "editor.folding": false, // Disable code folding (Neovim has it, but it's optional; disable for minimalism)
+  "zenMode.restore": false,
+  // Minimal Terminal
+  "terminal.integrated.tabs.enabled": false, // Hide terminal tabs for minimalism
+  "vim.autoindent": true, // Auto-indent like Neovim
+  // Zen Mode
+  "zenMode.centerLayout": true,
+  "zenMode.showTabs": "none",
+  "zenMode.hideLineNumbers": false,
+  "zenMode.fullScreen": true,
+  "zenMode.hideStatusBar": true,
+  "zenMode.hideActivityBar": true,
+  "window.commandCenter": false,
+  "workbench.layoutControl.enabled": false,
+  "C_Cpp.intelliSenseEngine": "disabled",
+  "github.copilot.enable": {
+    "*": false,
+    "plaintext": false,
+    "markdown": false,
+    "scminput": false
+  },
+  "breadcrumbs.enabled": false,
+  "gitlens.ai.model": "vscode",
+  "gitlens.graph.minimap.enabled": false,
+  "git.mergeEditor": true,
+  "workbench.iconTheme": "material-icon-theme",
+  "workbench.editor.empty.hint": "hidden",
+  "git.blame.editorDecoration.enabled": false,
+  "debug.inlineValues": "on",
+  "remote.SSH.defaultExtensions": [
+    "vscodevim.vim",
+    "jeff-hykin.better-cpp-syntax",
+    "ms-vscode.cpptools-themes",
+    "esbenp.prettier-vscode",
+    "llvm-vs-code-extensions.vscode-clangd",
+    "chaitanyashahare.lazygit",
+    "ryuta46.multi-command",
+    "dautroc.yazi-vscode"
+  ],
+  "gitlens.currentLine.enabled": false,
+  "gitlens.codeLens.enabled": false,
+  "editor.inlayHints.enabled": "off",
+  "debug.onTaskErrors": "showErrors",
+  "task.saveBeforeRun": "always",
+  "telemetry.telemetryLevel": "off",
+  "gitlens.ai.enabled": false,
+  "workbench.activityBar.location": "hidden",
+  "editor.renderWhitespace": "none",
+
+  // Disable git blame on line
+  "git.blame.statusBarItem.enabled": false,
+  "git-blame.config.inlineBlame.hoverMessage.activeLine": false,
+  "git-blame.config.showBlameInline": false,
+  "gitlens.currentLine.uncommittedChangesFormat": "",
+  "gitlens.currentLine.format": "",
+  "extensions.ignoreRecommendations": true,
+  "search.searchOnTypeDebouncePeriod": 30,
+  "search.searchView.keywordSuggestions": true,
+  "search.seedWithNearestWord": true,
+  "search.smartCase": true,
+  "panel.opensMaximized": true,
+  "workbench.panel.opensMaximized": "always",
+  "chromiumide.metrics.showMessage": false,
+  "chromiumide.disclaimerOnMac.enabled": false,
+  "diffEditor.renderSideBySide": false,
+  "geminicodeassist.inlineSuggestions.enableAuto": false,
+  // Disable auto detect as this can cause opening of tasks to be very slow on large repos
+  "task.autoDetect": "off",
+  "window.confirmBeforeClose": "keyboardOnly"
 }

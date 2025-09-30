@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Navigate to Chrome directory
+cd ~/chrome/src/
+
+# Update
+git rebase-update
+gclient sync
+
+# Rebuild zoekt index
+si
