@@ -12,3 +12,11 @@ export PATH="$HOME/go/bin:$PATH"
 # Custom
 export PATH="$HOME/depot_tools:$PATH"
 export SKIP_GCE_AUTH_FOR_GIT=1
+
+# Set DISPLAY to the correct value
+if [[ -z "${DISPLAY}" ]]; then
+  export DISPLAY=:$(
+    find /tmp/.X11-unix -maxdepth 1 -mindepth 1 -name 'X*' |
+      grep -o '[0-9]\+$' | head -n 1
+  )
+fi
