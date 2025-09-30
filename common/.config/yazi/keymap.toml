@@ -58,6 +58,8 @@ prepend_keymap = [
   { on = [ "g", "e" ], run = "cd ~/Desktop", desc = "Go to Desktop" },
   { on = [ "g", "v" ], run = "cd ~/.config/Code/User", desc = "Go to VS Code config" },
   { on = [ "g", "n" ], run = "cd ~/.config/nvim", desc = "Go to NVim" },
+  { on = [ "g", "C" ], run = "cd ~/.config", desc = "Go to Config" },
+  
   { on = [ "g", "c" ], run = "cd ~/chrome/src", desc = "Go to Chrome" },
   { on = [ "g", "b" ], run = "cd ~/chrome/src/out/Default/", desc = "Go to Chrome Default Build out" },
 
