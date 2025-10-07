@@ -460,56 +460,25 @@
       "commands": [
         // Ensure Normal mode
         "extension.vim_escape",
-        { "command": "vim.remap", "args": { "after": ["<leader>", "s", "t"] } }
+        { "command": "vim.remap", "args": { "after": ["<leader>", "s", "g"] } }
       ]
     }
   },
-  {
-    // Toggle the panel at the bottom of the screen
-    "key": "ctrl+t",
-    "command": "runCommands",
-    "args": {
-      "commands": ["workbench.action.togglePanel"]
-    }
-  },
-  // {
-  //   "key": "cmd+r",
-  //   "command": "workbench.action.closePanel",
-  //   "when": "panelVisible"
-  // },
-  // {
-  //   "key": "cmd+r",
-  //   "when": "!panelVisible",
-  //   "command": "runCommands",
-  //   "args": {
-  //     "commands": [
-  //       // When the are closing the terminal disable fullscreen mode so
-  //       // subsequent usage of the terminal is not fullscreen
-  //       // "workbench.action.toggleMaximizedPanel",
-  //       // Show the terminal
-  //       "workbench.action.terminal.toggleTerminal",
-  //       // Auto select the main terminal
-  //       "workbench.action.terminal.focusAtIndex1"
-  //     ]
-  //   }
-  // },
-  {
-    // Close the editor terminal as soon as ctrl+t is pressed - things that launch into there should be transient
-    "key": "ctrl+t",
-    "command": "runCommands",
-    "when": "terminalFocus && terminalEditorActive",
-    "args": {
-      "commands": [
-        "workbench.action.unpinEditor",
-        "workbench.action.revertAndCloseActiveEditor"
-      ]
-    }
-  },
-  // Duplicate terminal commands to run with ctrl+/ as well
+  // Show terminal commands
   {
     // Show the bottom panel if it's not visible
     "key": "ctrl+/",
     "command": "runCommands",
+    "when": "!panelVisible",
+    "args": {
+      "commands": ["workbench.action.terminal.toggleTerminal"]
+    }
+  },
+  {
+    // Hide the panel if it's visible
+    "key": "ctrl+/",
+    "command": "runCommands",
+    "when": "panelVisible",
     "args": {
       "commands": ["workbench.action.togglePanel"]
     }
@@ -526,6 +495,38 @@
       ]
     }
   },
+  // Show terminal commands to run with ctrl+t as well
+  {
+    // Show the bottom panel if it's not visible
+    "key": "ctrl+t",
+    "command": "runCommands",
+    "when": "!panelVisible",
+    "args": {
+      "commands": ["workbench.action.terminal.toggleTerminal"]
+    }
+  },
+  {
+    // Hide the panel if it's visible
+    "key": "ctrl+t",
+    "command": "runCommands",
+    "when": "panelVisible",
+    "args": {
+      "commands": ["workbench.action.togglePanel"]
+    }
+  },
+  {
+    // Close the editor terminal as soon as ctrl+/ is pressed - things that launch into there should be transient
+    "key": "ctrl+t",
+    "command": "runCommands",
+    "when": "terminalFocus && terminalEditorActive",
+    "args": {
+      "commands": [
+        "workbench.action.unpinEditor",
+        "workbench.action.revertAndCloseActiveEditor"
+      ]
+    }
+  },
+  // Additonal terminal shortcuts
   {
     "key": "ctrl+m",
     "command": "runCommands",
