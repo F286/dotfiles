@@ -18,7 +18,7 @@
 [diff]
     colorMoved = default
     algorithm = histogram
-    tool = nvimdiff
+    tool = vscode
 
 [difftool]
     prompt = false
@@ -32,7 +32,7 @@
 
 [merge]
     conflictstyle = diff3
-    tool = nvimdiff
+    tool = vscode
 
 [mergetool]
     prompt = false
