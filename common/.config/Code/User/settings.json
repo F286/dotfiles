@@ -1234,6 +1234,26 @@
       "before": ["<leader>", "g", "d"],
       "commands": ["git.openChange"]
     },
+    {
+      // Git diff vs upstream
+      "before": ["<leader>", "g", "D"],
+      "commands": [
+        // Custom command when terminal is opened to clear any other context
+        "task.custom.openTerminal",
+        // Make a new terminal
+        "workbench.action.terminal.new",
+        {
+          "command": "workbench.action.terminal.sendSequence",
+          "args": {
+            "text": "git upstream-diff\u000D"
+          }
+        },
+        "workbench.action.terminal.moveToEditor",
+        // Need to call this twice for some reason to have it hide
+        "workbench.action.terminal.toggleTerminal",
+        "workbench.action.terminal.toggleTerminal"
+      ]
+    },
     // {
     //   // Stage the current file you have open
     //   "before": ["<leader>", "g", "s"],
