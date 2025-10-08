@@ -1235,7 +1235,7 @@
       "commands": ["git.openChange"]
     },
     {
-      // Git diff vs upstream
+      // Git diff since last push to upstream (what will your next patch look like?)
       "before": ["<leader>", "g", "D"],
       "commands": [
         // Custom command when terminal is opened to clear any other context
@@ -1245,7 +1245,27 @@
         {
           "command": "workbench.action.terminal.sendSequence",
           "args": {
-            "text": "git upstream-diff\u000D"
+            "text": "echo 'Showing diff for your next Gerrit patch'; git cl diff\u000D"
+          }
+        },
+        "workbench.action.terminal.moveToEditor",
+        // Need to call this twice for some reason to have it hide
+        "workbench.action.terminal.toggleTerminal",
+        "workbench.action.terminal.toggleTerminal"
+      ]
+    },
+    {
+      // Git diff ALL changes compared to main (or the branch you are based off of)
+      "before": ["<leader>", "g", "a"],
+      "commands": [
+        // Custom command when terminal is opened to clear any other context
+        "task.custom.openTerminal",
+        // Make a new terminal
+        "workbench.action.terminal.new",
+        {
+          "command": "workbench.action.terminal.sendSequence",
+          "args": {
+            "text": "echo 'Showing ALL changes compared to main (or the branch you are based off of)'; git upstream-diff\u000D"
           }
         },
         "workbench.action.terminal.moveToEditor",
