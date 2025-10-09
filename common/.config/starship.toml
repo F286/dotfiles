@@ -19,16 +19,27 @@ min_time = 1000
 show_milliseconds = true
 
 [git_branch]
-disabled = true
+format = "on [$symbol$branch]($style) "
+symbol = " "
+style = "bold purple"
 
 [git_commit]
-disabled = true
+disabled = false
 
 [git_state]
-disabled = true
+disabled = false
 
 [git_status]
 disabled = true
 
 [git_metrics]
+disabled = true
+
+[nodejs]
+disabled = true
+
+[python]
+disabled = true
+
+[rust]
 disabled = true
