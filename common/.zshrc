@@ -60,20 +60,6 @@ if (( $+commands[zoxide] )); then
   eval "$(zoxide init zsh)"
 fi
 
-if (( $+commands[fzf] )); then
-  if (( $+commands[fd] )); then
-    export FZF_DEFAULT_COMMAND='fd --type f --hidden --follow --exclude .git'
-  fi
-  export FZF_DEFAULT_OPTS="$FZF_DEFAULT_OPTS \
-    --reverse \
-    --ansi \
-    --info=inline \
-    --style=minimal \
-    --no-cycle \
-    --style=minimal \
-    --color=prompt:#80a0ff,pointer:#ff5000,marker:#afff5f,hl:215,hl+:215"
-fi
-
 # -------- fzf-powered history search (Ctrl-R), deduped & reverse-chronological
 if (( $+commands[fzf] )); then
   _fzf_history_widget() {
@@ -112,10 +98,6 @@ alias stow_apply='$HOME/dotfiles/apply.sh'
 alias stow_init='$HOME/dotfiles/init.sh'
 alias stow_update='$HOME/dotfiles/update.sh && $HOME/dotfiles/apply.sh'
 alias stow_update_init_auto='$HOME/dotfiles/update.sh && AUTO_INSTALL=1 $HOME/dotfiles/init.sh'
-
-# ripgrep: hidden files, smart case, ignore common junk
-export RIPGREP_CONFIG_PATH=~/.ripgreprc
-export BAT_THEME="Visual Studio Dark+"
 
 # bat / batcat
 if (( $+commands[bat] )); then
@@ -177,4 +159,3 @@ done
 # -------- machine-specific overrides
 # shellcheck disable=SC1090
 [[ -r "$HOME/.zshrc.local" ]] && source "$HOME/.zshrc.local"
-
