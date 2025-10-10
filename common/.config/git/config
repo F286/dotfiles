@@ -16,7 +16,7 @@
 
 # --- Diff behavior ---
 [diff]
-    colorMoved = default
+    colorMoved = no
     algorithm = histogram
     tool = vscode
 
