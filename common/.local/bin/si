@@ -2,15 +2,17 @@
 # si — Simple Zoekt indexer
 
 set -euo pipefail
+set -x
 
 # Get CPU count for parallelism
 if command -v sysctl >/dev/null 2>&1; then
-  cpu_count=$(sysctl -n hw.ncpu 2>/dev/null || echo 4)
+  cpu_count=$(sysctl -n hw.ncpu 2>/dev/null || echo 256)
 elif command -v nproc >/dev/null 2>&1; then
-  cpu_count=$(nproc 2>/dev/null || echo 4)
+  cpu_count=$(nproc 2>/dev/null || echo 256)
 else
-  cpu_count=4
+  cpu_count=256
 fi
+echo "$cpu_count"
 
 IGNORES=".git,.svn,.hg,.idea,.vs,node_modules,out,build,dist,tmp,temp,cache,.cache,__pycache__,.mypy_cache,.pytest_cache,.tox,vendor,CMakeFiles,.gradle,.mvn,pkg,bin,.terraform,.jekyll-cache,_site"
 
