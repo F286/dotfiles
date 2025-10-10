@@ -1559,6 +1559,7 @@
   "editor.fontSize": 16,
   "terminal.integrated.fontSize": 16,
   "terminal.integrated.enableVisualBell": false,
+  "terminal.integrated.drawBoldTextInBrightColors": false,
   "accessibility.signals.terminalBell": {
     "sound": "off"
   },
