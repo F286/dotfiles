@@ -2,6 +2,7 @@
 # si — Simple Zoekt indexer
 
 set -euo pipefail
+set -x
 
 # Get CPU count for parallelism
 if command -v sysctl >/dev/null 2>&1; then
@@ -13,6 +14,8 @@ else
 fi
 
 IGNORES=".git,.svn,.hg,.idea,.vs,node_modules,out,build,dist,tmp,temp,cache,.cache,__pycache__,.mypy_cache,.pytest_cache,.tox,vendor,CMakeFiles,.gradle,.mvn,pkg,bin,.terraform,.jekyll-cache,_site"
+
+rm -rf .zoekt
 
 zoekt-index \
   -index .zoekt \
