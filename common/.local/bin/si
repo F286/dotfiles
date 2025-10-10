@@ -2,7 +2,6 @@
 # si — Simple Zoekt indexer
 
 set -euo pipefail
-set -x
 
 # Get CPU count for parallelism
 if command -v sysctl >/dev/null 2>&1; then
