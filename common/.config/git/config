@@ -71,7 +71,9 @@
     side-by-side = false
     line-numbers = true
 
-    syntax-theme = "VS Code Tokyonight Custom"
+    # syntax-theme = "VS Code Tokyonight Custom"
+    syntax-theme = "vscode-custom-tokyonight"
+
     # syntax-theme = base16-256                                   # Fallback if the custom theme cache isn't built yet
 
 # Optional: enable a feature you already defined below
