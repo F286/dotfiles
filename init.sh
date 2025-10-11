@@ -144,4 +144,4 @@ echo "Building bat cache for custom theme..."
 # Build bat cache for custom theme
 bat cache --build
 
-echo "Building bat cache for custom theme"
+echo "Init complete!"
