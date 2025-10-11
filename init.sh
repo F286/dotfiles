@@ -140,4 +140,8 @@ else
   echo "Skipping platform-specific setup"
 fi
 
-echo "Done! 🎉"
+echo "Building bat cache for custom theme..."
+# Build bat cache for custom theme
+bat cache --build
+
+echo "Building bat cache for custom theme"
