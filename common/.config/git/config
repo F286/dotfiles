@@ -114,12 +114,12 @@
     line-numbers-left-format = ""
     line-numbers-right-format = "{np:<4}"
 
-    plus-style = "syntax #172f1eff"
-    plus-emph-style = "syntax #22442cff"
-    plus-non-emph-style = "syntax #0d1a11"
-    minus-style = "syntax #412020ff"
-    minus-emph-style = "syntax #562a2aff"
-    minus-non-emph-style = "syntax #2c1616"
+    plus-style = "syntax #20432bff"
+    plus-emph-style = "syntax #2c5a3aff"
+    plus-non-emph-style = "syntax #17311fff"
+    minus-style = "syntax #532727ff"
+    minus-emph-style = "syntax #683131ff"
+    minus-non-emph-style = "syntax #3f1f1fff"
 
 [pager]    # keep these for safety even with core.pager
     diff = delta
