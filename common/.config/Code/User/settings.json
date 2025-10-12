@@ -1240,6 +1240,16 @@
       "commands": ["git.viewChanges"]
     },
     {
+      // Compare all changes to git tree compare target
+      "before": ["<leader>", "g", "c"],
+      "commands": ["gitTreeCompare.focus"]
+    },
+    {
+      // Change compare target for git tree compare
+      "before": ["<leader>", "g", "C"],
+      "commands": ["gitTreeCompare.changeBase"]
+    },
+    {
       // Open a diff for the changes to the current file
       "before": ["<leader>", "g", "f"],
       "commands": ["git.openChange"]
