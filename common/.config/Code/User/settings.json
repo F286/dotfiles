@@ -1220,19 +1220,19 @@
         "workbench.action.terminal.toggleTerminal"
       ]
     },
-    {
-      // Open VSCode version of Git viewer
-      "before": ["<leader>", "g", "G"],
-      "commands": [
-        "workbench.view.scm",
-        "scm.focusInput",
-        "vim.enterInsertMode"
-      ]
-    },
+    // {
+    //   // Open VSCode version of Git viewer
+    //   "before": ["<leader>", "g", "G"],
+    //   "commands": [
+    //     "workbench.view.scm",
+    //     "scm.focusInput",
+    //     "vim.enterInsertMode"
+    //   ]
+    // },
     {
       // Open a diff for the changes for all files since branch from main
       "before": ["<leader>", "g", "D"],
-      "commands": ["gitTreeCompare.openAllChanges"]
+      "commands": ["gitTreeCompare.refresh", "gitTreeCompare.openAllChanges"]
     },
     {
       // Open a diff for all changes since last commit
@@ -1295,7 +1295,11 @@
       ]
     },
     // {
-    //   // Stage the current file you have open
+    //   "before": ["<leader>", "g", "A"],
+    //   "commands": ["gitTreeCompare.refresh", "gitTreeCompare.openAllChanges"]
+    // },
+    // {
+      //   // Stage the current file you have open
     //   "before": ["<leader>", "g", "s"],
     //   "commands": ["git.stage"]
     // },
@@ -1309,16 +1313,16 @@
       "before": ["<leader>", "g", "w"],
       "commands": ["git.openFile"]
     },
-    {
-      // Git lens history of the of the last commit touching the current line / file
-      "before": ["<leader>", "g", "h"],
-      "commands": ["gitlens.showQuickCommitFileDetails"]
-    },
-    {
-      // Git lens version of log of current file
-      "before": ["<leader>", "g", "L"],
-      "commands": ["files.openTimeline"]
-    },
+    // {
+    //   // Git lens history of the of the last commit touching the current line / file
+    //   "before": ["<leader>", "g", "h"],
+    //   "commands": ["gitlens.showQuickCommitFileDetails"]
+    // },
+    // {
+    //   // Git lens version of log of current file
+    //   "before": ["<leader>", "g", "L"],
+    //   "commands": ["files.openTimeline"]
+    // },
     // Conflict (Merge)
     {
       // Accept Ours
