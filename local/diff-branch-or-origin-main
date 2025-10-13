@@ -1,0 +1,56 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Diff working tree vs the nearest split point with:
+#   1) any *other* local branch (unmerged), or
+#   2) origin/main
+# whichever is closer to HEAD.
+#
+# Pass any extra args straight through to `git diff`, e.g.:
+#   --name-only, --stat, -- path/, etc.
+
+git rev-parse --is-inside-work-tree >/dev/null 2>&1 || {
+  echo "Not inside a git repository." >&2
+  exit 1
+}
+
+cur="$(git branch --show-current || echo)"
+tmp="$(mktemp)"
+cleanup() { rm -f "$tmp"; }
+trap cleanup EXIT
+
+# --- Collect candidate base commits -------------------------------
+
+# (A) Other local branches (skip current; skip ones fully merged into HEAD)
+#     Using --fork-point first (handles rebases), falling back to LCA.
+while IFS= read -r r; do
+  [[ "$r" = "$cur" ]] && continue
+  if ! git merge-base --is-ancestor "$r" HEAD 2>/dev/null; then
+    bp="$(git merge-base --fork-point "$r" HEAD 2>/dev/null || true)"
+    [[ -z "${bp:-}" ]] && bp="$(git merge-base "$r" HEAD)"
+    [[ -n "${bp:-}" ]] && echo "$bp"
+  fi
+done < <(git for-each-ref --format='%(refname:short)' refs/heads) \
+  | grep -E '^[0-9a-f]{7,40}$' | sort -u > "$tmp" || true
+
+# (B) origin/main (if available)
+if git rev-parse -q --verify origin/main >/dev/null; then
+  om="$(git merge-base --fork-point origin/main HEAD 2>/dev/null || true)"
+  [[ -z "${om:-}" ]] && om="$(git merge-base origin/main HEAD)"
+  [[ -n "${om:-}" ]] && echo "$om" >> "$tmp"
+fi
+
+# De-dup & drop empties
+grep -E '^[0-9a-f]{7,40}$' "$tmp" | sort -u -o "$tmp" || true
+
+[[ -s "$tmp" ]] || {
+  echo "No base candidates found (no other local branches and no origin/main)." >&2
+  exit 1
+}
+
+# --- Pick the nearest candidate along HEAD's history --------------
+base="$(git rev-list HEAD | grep -m1 -F -x -f "$tmp" || true)"
+[[ -n "${base:-}" ]] || { echo "Could not determine a base commit." >&2; exit 1; }
+
+# --- Diff working tree vs that base --------------------------------
+exec git diff "$base" -- "$@"
