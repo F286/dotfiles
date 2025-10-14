@@ -1285,7 +1285,7 @@
         {
           "command": "workbench.action.terminal.sendSequence",
           "args": {
-            "text": "echo 'Showing ALL changes compared to main (or the branch you are based off of)'; git cl diff\u000D"
+            "text": "echo 'Showing ALL changes compared to main (or the branch you are based off of)'; diff-branch\u000D"
           }
         },
         "workbench.action.terminal.moveToEditor",
