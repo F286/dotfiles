@@ -74,10 +74,12 @@ Linux systems have a default `.bashrc`. These dotfiles include `.bashrc-custom` 
 
 If Nvim is using a version that is too old it can be made to use the newest version by running this
 
+```
 curl -LO https://github.com/neovim/neovim/releases/latest/download/nvim-linux-x86_64.appimage
 chmod u+x nvim-linux-x86_64.appimage
 mkdir -p ~/.local/bin
 mv nvim-linux-x86_64.appimage ~/.local/bin/nvim
+```
 
 ## Mac
 
