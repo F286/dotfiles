@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+cd ~/chrome/src/
+
+echo "Running aggressive garbage collection..."
+git gc --aggressive --prune=now

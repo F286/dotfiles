@@ -1,25 +1,58 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Navigate to Chrome directory
+usage() {
+  cat <<'USAGE'
+Usage: sync_chrome [--aggressive-gc]
+
+Synchronize the local Chromium checkout and rebuild the default target.
+
+Options:
+  --aggressive-gc  Run aggressive git garbage collection after syncing.
+  -h, --help       Show this help message and exit.
+USAGE
+}
+
+aggressive_gc=false
+
+while (($#)); do
+  case "$1" in
+    --aggressive-gc)
+      aggressive_gc=true
+      ;;
+    -h|--help)
+      usage
+      exit 0
+      ;;
+    *)
+      echo "Unknown option: $1" >&2
+      echo >&2
+      usage >&2
+      exit 1
+      ;;
+  esac
+  shift
+done
+
 cd ~/chrome/src/
 
-# Update
 git rebase-update
 gclient sync -D
 
-# Rebuild zoekt index
 si
 
-# Optimize git
 echo "Updating commit-graph..."
 git commit-graph write --reachable
 echo "Updating multi-pack index..."
 git multi-pack-index write
-echo "Running aggressive garbage collection..."
-# git gc --aggressive --prune=now
-git gc --prune=now
 
-# Build
+if $aggressive_gc; then
+  SCRIPT_DIR="$(cd -- "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+  "${SCRIPT_DIR}/chrome_gc_aggressive"
+else
+  echo "Running git garbage collection..."
+  git gc --prune=now
+fi
+
 gn gen out/Default
 autoninja -C out/Default
