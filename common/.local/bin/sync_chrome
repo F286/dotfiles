@@ -17,7 +17,8 @@ git commit-graph write --reachable
 echo "Updating multi-pack index..."
 git multi-pack-index write
 echo "Running aggressive garbage collection..."
-git gc --aggressive --prune=now
+# git gc --aggressive --prune=now
+git gc --prune=now
 
 # Build
 gn gen out/Default
