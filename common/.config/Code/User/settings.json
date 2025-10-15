@@ -1237,7 +1237,7 @@
     {
       // Open a diff for all changes since last commit
       "before": ["<leader>", "g", "d"],
-      "commands": ["git.viewChanges"]
+      "commands": ["git.openChange"]
     },
     {
       // Compare all changes to git tree compare target
@@ -1251,8 +1251,8 @@
     },
     {
       // Open a diff for the changes to the current file
-      "before": ["<leader>", "g", "f"],
-      "commands": ["git.openChange"]
+      "before": ["<leader>", "g", "a"],
+      "commands": ["git.viewChanges"]
     },
     {
       // Open a diff for your next Gerrit patch (what has changed since last push to upstream?)
@@ -1276,7 +1276,7 @@
     },
     {
       // Git diff ALL changes compared to main (or the branch you are based off of)
-      "before": ["<leader>", "g", "a"],
+      "before": ["<leader>", "g", "A"],
       "commands": [
         // Custom command when terminal is opened to clear any other context
         "task.custom.openTerminal",
