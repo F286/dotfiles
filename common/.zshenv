@@ -8,6 +8,9 @@ path=("$HOME/.local/bin" "$HOME/bin" "/opt/homebrew/bin" "/usr/local/bin" $path)
 # Custom scripts
 export PATH="$HOME/.local/bin:$PATH"
 
+# Additional ustom scripts
+export PATH="$HOME/bin:$PATH"
+
 # Go programs
 export PATH="$HOME/go/bin:$PATH"
 
