@@ -84,6 +84,17 @@ else
   echo "VS Code not found, skipping extensions"
 fi
 
+# Optional: Install Neovim AppImage (Linux only)
+if [ -f "install-nvim.sh" ] && [[ "$(uname)" == "Linux" ]]; then
+  install_nvim=$(get_user_confirmation "Install Neovim AppImage to ~/.local/bin? (y/N): ")
+  if [[ "$install_nvim" =~ ^[Yy] ]]; then
+    echo "Running Neovim installation script..."
+    ./install-nvim.sh
+  else
+    echo "Skipping Neovim installation"
+  fi
+fi
+
 # Optional: Install Yazi with enhanced features (GitHub binary for Linux)
 if [ -f "install-yazi.sh" ]; then
   install_yazi=$(get_user_confirmation "Install Yazi (may prompt again for install method)? (y/N): ")
