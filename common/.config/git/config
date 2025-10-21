@@ -31,8 +31,20 @@
 [difftool "nvimdiff"]
     cmd = nvim -f -d "$LOCAL" "$REMOTE"
 
+[rerere]
+    enabled = true                  # remember how you resolved a conflict
+    autoupdate = true               # auto-apply remembered fixes into the index
+
+[rebase]
+    autoSquash = true               # honor "fixup!" / "squash!" automatically
+    autoStash  = true               # stash dirty changes before rebase, reapply after
+    # optional: make preserving merges the default
+    rebaseMerges = no-rebase-cousins
+    # optional: update stacked branches automatically when you rebase
+    updateRefs = true
+
 [merge]
-    conflictstyle = diff3
+    conflictstyle = zdiff3
     tool = vscode
 
 [mergetool]
