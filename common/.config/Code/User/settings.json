@@ -1802,7 +1802,6 @@
   "task.saveBeforeRun": "always",
   "telemetry.telemetryLevel": "off",
   "gitlens.ai.enabled": false,
-  "workbench.activityBar.location": "hidden",
   "editor.renderWhitespace": "none",
 
   // Disable git blame on line
