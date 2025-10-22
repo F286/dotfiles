@@ -17,6 +17,9 @@ vim.keymap.set("n", "<C-d>", "16j", { noremap = true, desc = "Scroll Down 16 lin
 -- Enter block visual mode with <leader>v
 vim.keymap.set("n", "<leader>v", "<C-v>", { noremap = true, desc = "Block Visual Mode" })
 
+-- Redo with Shift+U, matching redo keybindings from other editors
+map("n", "U", "<C-r>", { desc = "Redo" })
+
 -- disable horizontal scroll with mouse/trackpad
 for _, mode in ipairs({ "n", "i", "v", "o", "t" }) do
   map(mode, "<ScrollWheelLeft>", "<Nop>", { silent = true, desc = "Disable ← scroll" })
