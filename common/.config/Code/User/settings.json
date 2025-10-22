@@ -314,6 +314,26 @@
   // Leader key and custom key mappings
   "vim.leader": "<space>",
   "vim.normalModeKeyBindingsNonRecursive": [
+
+    // <leader>co – Accept Current (ours)
+    { "before": ["<leader>", "c", "o"], "commands": ["merge-conflict.accept.current"] },
+
+    // <leader>ct – Accept Incoming (theirs)
+    { "before": ["<leader>", "c", "t"], "commands": ["merge-conflict.accept.incoming"] },
+
+    // <leader>ca – Accept Both / Accept Combination
+    { "before": ["<leader>", "c", "a"], "commands": [
+      "merge-conflict.accept.both"
+      // If you prefer the Merge Editor's Accept Combination button,
+      // add its command ID here once you look it up in the keyboard shortcuts JSON.
+    ]},
+    // Optional helper: open the current file in the Merge Editor
+    { "before": ["<leader>", "c", "m"], "commands": ["merge.openInMergeEditor"] } ,
+    {
+      // do  => revert selected ranges (take the other side into current)
+      "before": ["d", "o"],
+      "commands": [{ "command": "diffEditor.revert" }],
+    },
     {
       "before": ["<leader>", "v"],
       "after": ["<C-v>"]
