@@ -1573,8 +1573,8 @@
   "workbench.colorTheme": "Visual Studio Dark - C++",
   "window.titleBarStyle": "custom",
   "editor.minimap.enabled": false,
-  "editor.fontSize": 16,
-  "terminal.integrated.fontSize": 16,
+  "editor.fontSize": 12,
+  "terminal.integrated.fontSize": 12,
   "terminal.integrated.enableVisualBell": false,
   "terminal.integrated.drawBoldTextInBrightColors": false,
   "accessibility.signals.terminalBell": {
