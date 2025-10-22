@@ -1899,5 +1899,6 @@
   "terminal.integrated.stickyScroll.enabled": false,
   "terminal.integrated.copyOnSelection": false,
   "diffEditor.codeLens": true,
-  "lldb.suppressUpdateNotifications": true
+  "lldb.suppressUpdateNotifications": true,
+  "diffEditor.experimental.showMoves": true
 }
