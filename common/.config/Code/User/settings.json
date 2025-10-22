@@ -1827,4 +1827,5 @@
   "task.autoDetect": "off",
   "window.confirmBeforeClose": "keyboardOnly",
   "terminal.integrated.stickyScroll.enabled": false
+  "diffEditor.experimental.showMoves": true,
 }
