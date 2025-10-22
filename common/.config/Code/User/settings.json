@@ -1768,7 +1768,6 @@
     "markdown": false,
     "scminput": false
   },
-  "breadcrumbs.enabled": false,
   "gitlens.ai.model": "vscode",
   "gitlens.graph.minimap.enabled": false,
   "git.mergeEditor": true,
