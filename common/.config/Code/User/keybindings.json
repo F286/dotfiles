@@ -426,14 +426,6 @@
   },
   // Toggle Comment
   {
-    "key": "shift+f11",
-    "command": "editor.action.commentLine",
-    "when": "editorTextFocus"
-  },
-  // Change within current file
-  // Makes the standard cmd-f shortcut map to the / key
-  // Useful as I have a macro mapped to cmd-f
-  {
     "key": "cmd+f",
     "command": "runCommands",
     "when": "editorTextFocus",
