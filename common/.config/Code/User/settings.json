@@ -1,4 +1,6 @@
 {
+
+"geminicodeassist.updateChannel": "dogfood",
     "html.autoClosingTags": false,
     "auto-close-tag.activationOnLanguage": [
       "html",
