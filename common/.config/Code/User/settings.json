@@ -1751,7 +1751,6 @@
   "editor.folding": false, // Disable code folding (Neovim has it, but it's optional; disable for minimalism)
   "zenMode.restore": false,
   // Minimal Terminal
-  "terminal.integrated.tabs.enabled": false, // Hide terminal tabs for minimalism
   "vim.autoindent": true, // Auto-indent like Neovim
   // Zen Mode
   "zenMode.centerLayout": true,
