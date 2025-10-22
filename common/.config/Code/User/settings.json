@@ -1819,7 +1819,7 @@
   "workbench.panel.opensMaximized": "always",
   "chromiumide.metrics.showMessage": false,
   "chromiumide.disclaimerOnMac.enabled": false,
-  "diffEditor.renderSideBySide": false,
+  "diffEditor.renderSideBySide": true,
   "geminicodeassist.inlineSuggestions.enableAuto": false,
   // Disable auto detect as this can cause opening of tasks to be very slow on large repos
   "task.autoDetect": "off",
