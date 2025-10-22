@@ -63,7 +63,6 @@
   "editor.cursorSurroundingLines": 8,
   "editor.cursorSurroundingLinesStyle": "all",
   "editor.scrollBeyondLastLine": false,
-  "editor.stickyScroll.enabled": false,
   // Copilot Chat configuration
   "github.copilot.chat.agent.thinkingTool": true,
   "chat.agent.enabled": true,
