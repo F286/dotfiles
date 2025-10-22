@@ -439,6 +439,11 @@
       "commands": [{ "command": "redo" }]
     },
     {
+      // Use Visual Studio code redo rather than VSVim
+      "before": ["<S-u>"],
+      "commands": [{ "command": "redo" }]
+    },
+    {
       "before": ["Y"],
       "after": ["y", "$"]
     },
