@@ -808,6 +808,40 @@
   {
     "key": "shift+f6",
     "command": "-workbench.action.focusPreviousPart"
+  },
+  {
+    "key": "cmd+f5",
+    "command": "-debug.openView",
+    "when": "!debuggersAvailable"
+  },
+  {
+    "key": "cmd+f5",
+    "command": "workbench.action.debug.stepInto",
+    "when": "debugState != 'inactive'"
+  },
+  {
+    "key": "f11",
+    "command": "-workbench.action.debug.stepInto",
+    "when": "debugState != 'inactive'"
+  },
+  {
+    "key": "cmd+f6",
+    "command": "workbench.action.debug.stepOver",
+    "when": "debugState == 'stopped'"
+  },
+  {
+    "key": "f10",
+    "command": "-workbench.action.debug.stepOver",
+    "when": "debugState == 'stopped'"
+  },
+  {
+    "key": "f6",
+    "command": "-workbench.action.debug.pause",
+    "when": "debugState == 'running'"
+  },
+  {
+    "key": "f6",
+    "command": "-workbench.action.focusNextPart"
   }
   // {
   //   // There is an issue in the find it faster plugin where it does go back to your last focused window when closed
