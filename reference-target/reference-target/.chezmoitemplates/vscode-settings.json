@@ -503,6 +503,15 @@
     },
     {
       "before": [
+        "g",
+        "R"
+      ],
+      "commands": [
+        "references-view.findReferences"
+      ]
+    },
+    {
+      "before": [
         "<leader>",
         "v"
       ],
