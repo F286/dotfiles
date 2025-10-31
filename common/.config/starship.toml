@@ -4,7 +4,7 @@
 # Inserts a blank line between shell prompts
 add_newline = true
 command_timeout = 1000
-format = "$all\n$character"
+format = "${env_var.shpool}$all\n$character"
 right_format = "$time"
 
 [fill]
@@ -37,6 +37,12 @@ time_format = '%-I:%M %p'
 format = "on [$symbol$branch]($style) "
 symbol = " "
 style = "bold purple"
+
+[env_var.shpool]
+variable = "SHPOOL_SESSION_NAME"
+format = "[\\[$env_value\\]]($style) "
+style = "dimmed"
+default = ""
 
 [git_commit]
 disabled = false
