@@ -1,0 +1,3 @@
+output_spool_lines = 65535
+session_restore_mode = { lines = 65535 }
+prompt_prefix = ""
