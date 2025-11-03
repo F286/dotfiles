@@ -1565,7 +1565,7 @@
       "sequence": [
         {
           "command": "setContext",
-          "args": "closePanelOnEnter"
+          "args": ["closePanelOnEnter", false]
         }
       ]
     },
