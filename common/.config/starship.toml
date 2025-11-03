@@ -40,7 +40,7 @@ style = "bold purple"
 
 [env_var.shpool]
 variable = "SHPOOL_SESSION_NAME"
-format = "[\\[$env_value\\]]($style) "
+format = "([\\[$env_value\\]]($style) )"
 style = "dimmed"
 default = ""
 
