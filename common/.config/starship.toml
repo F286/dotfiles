@@ -42,7 +42,6 @@ style = "bold purple"
 variable = "SHPOOL_SESSION_NAME"
 format = "[\\[$env_value\\]]($style) "
 style = "dimmed"
-default = ""
 
 [git_commit]
 disabled = false
