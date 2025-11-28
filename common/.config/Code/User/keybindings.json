@@ -1,5 +1,102 @@
 // Place your key bindings in this file to override the defaults
 [
+  // Scroll up 16 Lines (Shift+K alias for Cmd+U)
+  {
+    "key": "shift+k",
+    "command": "runCommands",
+    "when": "textInputFocus && vim.mode == 'Normal'",
+    "args": {
+      "commands": [
+        "scrollLineUp",
+        "cursorUp",
+        "scrollLineUp",
+        "cursorUp",
+        "scrollLineUp",
+        "cursorUp",
+        "scrollLineUp",
+        "cursorUp",
+        "scrollLineUp",
+        "cursorUp",
+        "scrollLineUp",
+        "cursorUp",
+        "scrollLineUp",
+        "cursorUp",
+        "scrollLineUp",
+        "cursorUp",
+        "scrollLineUp",
+        "cursorUp",
+        "scrollLineUp",
+        "cursorUp",
+        "scrollLineUp",
+        "cursorUp",
+        "scrollLineUp",
+        "cursorUp",
+        "scrollLineUp",
+        "cursorUp",
+        "scrollLineUp",
+        "cursorUp",
+        "scrollLineUp",
+        "cursorUp",
+        "scrollLineUp",
+        "cursorUp"
+      ]
+    }
+  },
+  // Scroll down 16 Lines (Shift+J alias for Cmd+D)
+  {
+    "key": "shift+j",
+    "command": "runCommands",
+    "when": "textInputFocus && vim.mode == 'Normal'",
+    "args": {
+      "commands": [
+        "scrollLineDown",
+        "cursorDown",
+        "scrollLineDown",
+        "cursorDown",
+        "scrollLineDown",
+        "cursorDown",
+        "scrollLineDown",
+        "cursorDown",
+        "scrollLineDown",
+        "cursorDown",
+        "scrollLineDown",
+        "cursorDown",
+        "scrollLineDown",
+        "cursorDown",
+        "scrollLineDown",
+        "cursorDown",
+        "scrollLineDown",
+        "cursorDown",
+        "scrollLineDown",
+        "cursorDown",
+        "scrollLineDown",
+        "cursorDown",
+        "scrollLineDown",
+        "cursorDown",
+        "scrollLineDown",
+        "cursorDown",
+        "scrollLineDown",
+        "cursorDown",
+        "scrollLineDown",
+        "cursorDown",
+        "scrollLineDown",
+        "cursorDown"
+      ]
+    }
+  },
+
+  // Left Side Bar (Explorer/SCM/Extensions...)
+  { "key": "cmd+b",  "command": "workbench.action.toggleSidebarVisibility" },
+
+  // Bottom Panel (Terminal/Problems/Output/Debug Console) — default toggle
+  { "key": "cmd+j", "command": "workbench.action.togglePanel" },
+
+  // Unified right side: Secondary Side Bar — toggle
+  { "key": "cmd+;",  "command": "workbench.action.toggleAuxiliaryBar" },
+
+  // Focus editor directly
+  { "key": "cmd+k",  "command": "workbench.action.focusActiveEditorGroup" },
+
   // Disable line move shortcuts
   { "key": "alt+down", "command": "-editor.action.moveLinesDownAction" },
   { "key": "alt+up", "command": "-editor.action.moveLinesUpAction" },
