@@ -26,7 +26,7 @@ jobs:
           elif [ "$RUNNER_OS" == "macOS" ]; then
             brew install stow gnu-time
           elif [ "$RUNNER_OS" == "Windows" ]; then
-            winget install stefansundin.gnu-stow --silent --accept-package-agreements --accept-source-agreements
+            pwsh -Command "winget install stefansundin.gnu-stow --silent --accept-package-agreements --accept-source-agreements"
           fi
         shell: bash
 
@@ -263,7 +263,6 @@ jobs:
           hyperfine --warmup 1 --runs 10 './apply.sh --restow'
 
           # Benchmark individual package operations
-          cd dotfiles
           hyperfine --warmup 1 --runs 10 'stow --target=$HOME --restow shell'
 
           echo "✅ Benchmark comparison completed"
