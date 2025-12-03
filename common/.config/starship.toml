@@ -4,7 +4,7 @@
 # Inserts a blank line between shell prompts
 add_newline = true
 command_timeout = 1000
-format = "$all\n$character"
+format = "$username$hostname${custom.git_workspace}$directory$git_branch$git_commit$git_state$git_status$cmd_duration\n$character"
 right_format = "$time"
 
 [fill]
@@ -58,3 +58,24 @@ disabled = true
 
 [rust]
 disabled = true
+
+[custom.git_workspace]
+description = "Chromium workspace name (chrome/chrome2/etc)"
+require_repo = true
+
+# Only show this module if the git repo root is a directory named 'src'
+when = '''
+root=$(git rev-parse --show-toplevel 2>/dev/null) || exit 1
+[ "${root##*/}" = "src" ]
+'''
+
+# Print the parent of the 'src' checkout (chrome, chrome2, ...)
+command = '''
+root=$(git rev-parse --show-toplevel 2>/dev/null) || exit 0
+parent=${root%/*}
+echo "${parent##*/}"
+'''
+
+# No leading/trailing spaces; add "/" so it glues to $directory
+format = '[$output/]($style)'
+style  = 'dim cyan'
