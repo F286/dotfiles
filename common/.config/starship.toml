@@ -77,5 +77,5 @@ echo "${parent##*/}"
 '''
 
 # No leading/trailing spaces; add "/" so it glues to $directory
-format = '[$output/]($style)'
-style  = 'dim cyan'
+format = '[ $output ]($style)'
+style  = 'bright-cyan bold'
