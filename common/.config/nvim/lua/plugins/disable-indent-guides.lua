@@ -1,8 +1,11 @@
 return {
+  -- disable default indent guides
   {
-    "lukas-reineke/indent-blankline.nvim",
-    main = "ibl",
-    opts = { enabled = false },
+    "folke/snacks.nvim",
+    opts = { indent = { enabled = false } },
   },
-  { "echasnovski/mini.indentscope", enabled = false },
+  
+  -- disable legacy indent plugins
+  { "lukas-reineke/indent-blankline.nvim", enabled = false },
+  { "nvim-mini/mini.indentscope", enabled = false },
 }
