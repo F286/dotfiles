@@ -2,7 +2,7 @@
 -- Add left/right arrow key support to mini.files navigation
 
 return {
-  "echasnovski/mini.files",
+  "mini/mini.files",
   config = function()
     local MiniFiles = require("mini.files")
     -- Add left/right arrow keymaps for navigation
